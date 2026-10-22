@@ -4,843 +4,377 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>BNL Products - 1-Day Event Sales & Raffle Hub</title>
-  <!-- FontAwesome Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <!-- Firebase SDKs -->
   <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
-
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
     body { background-color: #f1f5f9; color: #1e293b; padding-bottom: 80px; }
-    
     header { background-color: #065f46; color: white; padding: 12px 16px; position: sticky; top: 0; z-index: 30; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
     .header-container { max-width: 900px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; }
     .brand-box { display: flex; align-items: center; gap: 12px; }
     .brand-logo { background: white; color: #065f46; font-weight: 900; padding: 6px 10px; border-radius: 8px; font-size: 16px; }
-    
     .sync-badge { background: #047857; padding: 4px 10px; border-radius: 20px; font-size: 11px; display: flex; align-items: center; gap: 6px; font-weight: 600; }
     .sync-dot { width: 8px; height: 8px; background: #34d399; border-radius: 50%; display: inline-block; }
-
     main { max-width: 900px; margin: 0 auto; padding: 16px; }
-
     .tab-content { display: none; }
     .tab-content.active { display: block; }
-
-    /* Cards */
     .card { background: white; border-radius: 12px; padding: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.04); border: 1px solid #e2e8f0; margin-bottom: 16px; }
     .grid-4 { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-bottom: 16px; }
-    
     .kpi-card { background: white; border-radius: 12px; padding: 16px; border: 1px solid #e2e8f0; box-shadow: 0 2px 6px rgba(0,0,0,0.03); display: flex; flex-direction: column; justify-content: space-between; }
     .kpi-title { font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase; }
     .kpi-value { font-size: 24px; font-weight: 900; color: #0f172a; margin-top: 6px; }
     .kpi-sub { font-size: 11px; color: #64748b; margin-top: 8px; }
-
-    /* Forms */
     .form-grid { display: grid; grid-template-columns: 1fr; gap: 12px; }
     @media(min-width: 640px) { .form-grid { grid-template-columns: repeat(2, 1fr); } }
-    
     label { display: block; font-size: 11px; font-weight: 700; color: #475569; text-transform: uppercase; margin-bottom: 4px; }
     input, select { width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 13px; outline: none; background: #fff; }
     input:focus, select:focus { border-color: #059669; box-shadow: 0 0 0 2px rgba(5,150,105,0.1); }
-    
     .btn { background: #059669; color: white; padding: 12px 20px; border: none; border-radius: 8px; font-weight: bold; font-size: 13px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 8px; width: 100%; }
     .btn:hover { background: #047857; }
     .btn-amber { background: #d97706; }
     .btn-amber:hover { background: #b45309; }
     .btn-danger { background: #dc2626; color: white; padding: 4px 8px; font-size: 10px; border-radius: 4px; border: none; cursor: pointer; font-weight: bold; }
-    .btn-danger:hover { background: #b91c1c; }
     .btn-edit { background: #2563eb; color: white; padding: 4px 8px; font-size: 10px; border-radius: 4px; border: none; cursor: pointer; font-weight: bold; }
-    .btn-edit:hover { background: #1d4ed8; }
-
-    /* Tables */
     .table-container { overflow-x: auto; margin-top: 12px; }
     table { width: 100%; border-collapse: collapse; text-align: left; font-size: 12px; }
     th { background: #f8fafc; color: #475569; font-weight: 700; padding: 10px; border-bottom: 1px solid #e2e8f0; text-transform: uppercase; }
     td { padding: 10px; border-bottom: 1px solid #f1f5f9; color: #334155; font-weight: 500; }
-    tr:hover { background: #f8fafc; }
-
-    /* Bottom Nav for Mobile */
     .bottom-nav { display: flex; position: fixed; bottom: 0; left: 0; right: 0; background: white; border-top: 1px solid #cbd5e1; z-index: 40; justify-content: space-around; padding: 8px 0; box-shadow: 0 -2px 10px rgba(0,0,0,0.05); }
     .nav-item { background: none; border: none; display: flex; flex-direction: column; align-items: center; color: #64748b; font-size: 10px; font-weight: 600; cursor: pointer; gap: 2px; }
     .nav-item.active { color: #059669; font-weight: bold; }
     .nav-item i { font-size: 18px; }
-
-    /* Modal */
     .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 50; align-items: center; justify-content: center; padding: 16px; }
     .modal-content { background: white; border-radius: 12px; padding: 20px; width: 100%; max-width: 450px; box-shadow: 0 4px 20px rgba(0,0,0,0.15); }
-
-    /* Print styling */
-    @media print {
-      body * { visibility: hidden; }
-      #printableTicketArea, #printableTicketArea * { visibility: visible; }
-      #printableTicketArea { position: absolute; left: 0; top: 0; width: 100%; }
-    }
+    @media print { body * { visibility: hidden; } #printableTicketArea, #printableTicketArea * { visibility: visible; } #printableTicketArea { position: absolute; left: 0; top: 0; width: 100%; } }
   </style>
 </head>
 <body>
-
-  <!-- HEADER -->
   <header>
     <div class="header-container">
       <div class="brand-box">
         <div class="brand-logo">BNL</div>
         <div>
-          <h1 style="font-size: 15px; font-weight: 900; letter-spacing: 0.5px;">BNL PRODUCTS</h1>
-          <p style="font-size: 10px; color: #a7f3d0;">1-DAY EVENT SALES & RAFFLE HUB</p>
+          <h1 style="font-size: 15px; font-weight: 900;">BNL PRODUCTS</h1>
+          <p style="font-size: 10px; color: #a7f3d0;">1-DAY EVENT SALES & RAFFLE HUB - CLOUD LIVE</p>
         </div>
       </div>
-      <div class="sync-badge">
-        <span class="sync-dot" id="syncDot"></span>
-        <span id="syncText">Live Sync</span>
-      </div>
+      <div class="sync-badge"><span class="sync-dot" id="syncDot"></span><span id="syncText">Connecting...</span></div>
     </div>
   </header>
-
-  <!-- MAIN CONTAINER -->
   <main>
-
-    <!-- ==================== HOME MODULE ==================== -->
     <div id="tab-home" class="tab-content active">
       <div class="grid-4">
-        <!-- Revenue Card -->
-        <div class="kpi-card">
-          <div>
-            <div class="kpi-title">Total Revenue</div>
-            <div class="kpi-value" id="kpi-revenue">₦0</div>
-          </div>
-          <div class="kpi-sub" id="kpi-tx-count">0 transactions</div>
-        </div>
-        <!-- Items Sold -->
-        <div class="kpi-card">
-          <div>
-            <div class="kpi-title">Items Sold</div>
-            <div class="kpi-value" id="kpi-items">0</div>
-          </div>
-          <div class="kpi-sub">Across product lines</div>
-        </div>
-        <!-- Raffle Tickets -->
-        <div class="kpi-card">
-          <div>
-            <div class="kpi-title">Raffle Tickets</div>
-            <div class="kpi-value" id="kpi-raffle">0</div>
-          </div>
-          <div class="kpi-sub" id="kpi-latest-ticket">Latest: None</div>
-        </div>
-        <!-- Active Sync -->
-        <div class="kpi-card">
-          <div>
-            <div class="kpi-title">Active Sync</div>
-            <div class="kpi-value" style="font-size: 20px; color: #059669;" id="kpi-sync-status">Live</div>
-          </div>
-          <div class="kpi-sub" style="color: #059669; font-weight: bold;">Real-time Multi-user</div>
-        </div>
+        <div class="kpi-card"><div><div class="kpi-title">Total Revenue</div><div class="kpi-value" id="kpi-revenue">₦0</div></div><div class="kpi-sub" id="kpi-tx-count">0 transactions - cloud</div></div>
+        <div class="kpi-card"><div><div class="kpi-title">Items Sold</div><div class="kpi-value" id="kpi-items">0</div></div><div class="kpi-sub">Across product lines</div></div>
+        <div class="kpi-card"><div><div class="kpi-title">Raffle Tickets</div><div class="kpi-value" id="kpi-raffle">0</div></div><div class="kpi-sub" id="kpi-latest-ticket">Latest: None</div></div>
+        <div class="kpi-card"><div><div class="kpi-title">Active Sync</div><div class="kpi-value" style="font-size: 20px; color: #059669;" id="kpi-sync-status">Live</div></div><div class="kpi-sub" style="color: #059669; font-weight: bold;">Real-time Multi-user Cloud</div></div>
       </div>
-
-      <!-- Graphical Charts -->
       <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px;">
-        <div class="card">
-          <h3 style="font-size: 14px; font-weight: bold; margin-bottom: 12px; color: #0f172a;"><i class="fa-solid fa-chart-column" style="color: #059669;"></i> Revenue Breakdown (₦)</h3>
-          <div id="chart-revenue-container" style="display: flex; flex-direction: column; gap: 10px;">
-            <p style="font-size: 12px; color: #94a3b8; font-style: italic;">No sales recorded yet.</p>
-          </div>
-        </div>
-        <div class="card">
-          <h3 style="font-size: 14px; font-weight: bold; margin-bottom: 12px; color: #0f172a;"><i class="fa-solid fa-chart-bar" style="color: #2563eb;"></i> Units Sold Volume</h3>
-          <div id="chart-units-container" style="display: flex; flex-direction: column; gap: 10px;">
-            <p style="font-size: 12px; color: #94a3b8; font-style: italic;">No sales recorded yet.</p>
-          </div>
-        </div>
+        <div class="card"><h3 style="font-size: 14px; font-weight: bold; margin-bottom: 12px;"><i class="fa-solid fa-chart-column" style="color: #059669;"></i> Revenue Breakdown (₦)</h3><div id="chart-revenue-container"></div></div>
+        <div class="card"><h3 style="font-size: 14px; font-weight: bold; margin-bottom: 12px;"><i class="fa-solid fa-chart-bar" style="color: #2563eb;"></i> Units Sold Volume</h3><div id="chart-units-container"></div></div>
       </div>
     </div>
 
-    <!-- ==================== SALES MODULE ==================== -->
     <div id="tab-sales" class="tab-content">
       <div class="card">
         <h2 style="font-size: 15px; font-weight: bold; margin-bottom: 12px;"><i class="fa-solid fa-cart-plus" style="color: #059669;"></i> Record New Sale</h2>
         <form id="salesForm" onsubmit="handleSaleSubmit(event)" style="display: flex; flex-direction: column; gap: 12px;">
           <div class="form-grid">
-            <div>
-              <label>Select Product *</label>
-              <select id="saleProduct" onchange="onProductSelectChange()" required>
-                <option value="" disabled selected>-- Choose Product Item --</option>
-                <option value="Sorghum Mill">Sorghum Mill</option>
-                <option value="Stove">Stove</option>
-                <option value="Briquette">Briquette</option>
-                <option value="Activated Charcoal">Activated Charcoal</option>
-                <option value="Bitter Leaf Soap">Bitter Leaf Soap</option>
-                <option value="Other / Custom Product">Other / Custom Product</option>
-              </select>
-            </div>
-            <div id="customProductBox" style="display: none;">
-              <label>Custom Product Name *</label>
-              <input type="text" id="customProductName" placeholder="e.g. Special Package">
-            </div>
-            <div>
-              <label>Unit Price (₦) *</label>
-              <input type="number" id="salePrice" min="0" placeholder="0.00" oninput="calculateSaleTotal()" required>
-            </div>
-            <div>
-              <label>Quantity *</label>
-              <input type="number" id="saleQty" min="1" value="1" oninput="calculateSaleTotal()" required>
-            </div>
-            <div>
-              <label>Total Price (₦)</label>
-              <input type="text" id="saleTotal" readonly value="₦0.00" style="background: #f8fafc; font-weight: bold; color: #059669;">
-            </div>
-            <div>
-              <label>Customer Name (Optional)</label>
-              <input type="text" id="saleCustomer" placeholder="e.g. John Doe">
-            </div>
-            <div>
-              <label>Sales Rep Name *</label>
-              <input type="text" id="saleRep" placeholder="Enter your name" required>
-            </div>
+            <div><label>Select Product *</label><select id="saleProduct" onchange="onProductSelectChange()" required><option value="" disabled selected>-- Choose Product Item --</option><option value="Sorghum Mill">Sorghum Mill</option><option value="Stove">Stove</option><option value="Briquette">Briquette</option><option value="Activated Charcoal">Activated Charcoal</option><option value="Bitter Leaf Soap">Bitter Leaf Soap</option><option value="Other / Custom Product">Other / Custom Product</option></select></div>
+            <div id="customProductBox" style="display: none;"><label>Custom Product Name *</label><input type="text" id="customProductName" placeholder="e.g. Special Package"></div>
+            <div><label>Unit Price (₦) *</label><input type="number" id="salePrice" min="0" placeholder="0.00" oninput="calculateSaleTotal()" required></div>
+            <div><label>Quantity *</label><input type="number" id="saleQty" min="1" value="1" oninput="calculateSaleTotal()" required></div>
+            <div><label>Total Price (₦)</label><input type="text" id="saleTotal" readonly value="₦0.00" style="background: #f8fafc; font-weight: bold; color: #059669;"></div>
+            <div><label>Customer Name (Optional)</label><input type="text" id="saleCustomer" placeholder="e.g. John Doe"></div>
+            <div><label>Sales Rep Name *</label><input type="text" id="saleRep" placeholder="Enter your name" required></div>
           </div>
-          <button type="submit" class="btn" style="width: auto;"><i class="fa-solid fa-check"></i> Submit Transaction</button>
+          <button type="submit" class="btn" id="saleBtn"><i class="fa-solid fa-check"></i> Submit Transaction - Cloud Save</button>
+          <div id="saleStatus" style="font-size:12px; color:#059669;"></div>
         </form>
       </div>
-
-      <!-- Sales Audit Log -->
       <div class="card">
         <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; border-bottom: 1px solid #e2e8f0; padding-bottom: 10px;">
-          <h3 style="font-size: 14px; font-weight: bold;"><i class="fa-solid fa-list-check"></i> Real-time Sales Log</h3>
-          <input type="text" id="salesSearchInput" onkeyup="filterSalesTable()" placeholder="Search product, customer, or rep..." style="max-width: 240px; padding: 6px 10px;">
+          <h3 style="font-size: 14px; font-weight: bold;"><i class="fa-solid fa-list-check"></i> Real-time Sales Log - Cloud</h3>
+          <input type="text" id="salesSearchInput" onkeyup="filterSalesTable()" placeholder="Search..." style="max-width: 240px; padding: 6px 10px;">
         </div>
-        <div class="table-container">
-          <table>
-            <thead>
-              <tr>
-                <th>Time</th>
-                <th>Product</th>
-                <th style="text-align: center;">Qty</th>
-                <th style="text-align: right;">Unit Price</th>
-                <th style="text-align: right;">Total</th>
-                <th>Customer</th>
-                <th>Sales Rep</th>
-                <th style="text-align: center;">Actions</th>
-              </tr>
-            </thead>
-            <tbody id="salesTableBody">
-              <tr><td colspan="8" style="text-align: center; color: #94a3b8; font-style: italic;">No sales transactions logged yet.</td></tr>
-            </tbody>
-          </table>
-        </div>
+        <div class="table-container"><table><thead><tr><th>Time</th><th>Product</th><th style="text-align: center;">Qty</th><th style="text-align: right;">Unit Price</th><th style="text-align: right;">Total</th><th>Customer</th><th>Sales Rep</th><th style="text-align: center;">Actions</th></tr></thead><tbody id="salesTableBody"></tbody></table></div>
       </div>
     </div>
 
-    <!-- ==================== RAFFLE MODULE ==================== -->
     <div id="tab-raffle" class="tab-content">
       <div class="card">
         <h2 style="font-size: 15px; font-weight: bold; margin-bottom: 12px;"><i class="fa-solid fa-ticket" style="color: #d97706;"></i> Issue Raffle Ticket</h2>
         <form id="raffleForm" onsubmit="handleRaffleSubmit(event)" style="display: flex; flex-direction: column; gap: 12px;">
           <div class="form-grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));">
-            <div>
-              <label>Participant Name *</label>
-              <input type="text" id="raffleName" placeholder="Enter full name" required>
-            </div>
-            <div>
-              <label>Associated Purchase *</label>
-              <select id="raffleNote" required>
-                <option value="" disabled selected>-- Select Item Bought --</option>
-                <option value="Sorghum Mill">Sorghum Mill</option>
-                <option value="Stove">Stove</option>
-                <option value="Briquette">Briquette</option>
-                <option value="Activated Charcoal">Activated Charcoal</option>
-                <option value="Bitter Leaf Soap">Bitter Leaf Soap</option>
-                <option value="General Entry / Visitor">General Entry / Visitor</option>
-              </select>
-            </div>
-            <div>
-              <label>Sales Rep Name *</label>
-              <input type="text" id="raffleRep" placeholder="Enter your name" required>
-            </div>
+            <div><label>Participant Name *</label><input type="text" id="raffleName" placeholder="Enter full name" required></div>
+            <div><label>Associated Purchase *</label><select id="raffleNote" required><option value="" disabled selected>-- Select Item Bought --</option><option value="Sorghum Mill">Sorghum Mill</option><option value="Stove">Stove</option><option value="Briquette">Briquette</option><option value="Activated Charcoal">Activated Charcoal</option><option value="Bitter Leaf Soap">Bitter Leaf Soap</option><option value="General Entry / Visitor">General Entry / Visitor</option></select></div>
+            <div><label>Sales Rep Name *</label><input type="text" id="raffleRep" placeholder="Enter your name" required></div>
           </div>
-          <button type="submit" class="btn btn-amber" style="width: auto;"><i class="fa-solid fa-id-card"></i> Generate Ticket Number</button>
+          <button type="submit" class="btn btn-amber"><i class="fa-solid fa-id-card"></i> Generate Ticket Number</button>
+          <div id="raffleStatus" style="font-size:12px; color:#d97706;"></div>
         </form>
       </div>
-
-      <!-- Ticket Result Banner -->
       <div id="ticketResultCard" class="card" style="display: none; background: #065f46; color: white;">
         <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
-          <div>
-            <div style="font-size: 11px; color: #a7f3d0; font-weight: bold; text-transform: uppercase;">Raffle Ticket Generated Successfully</div>
-            <div id="resTicketCode" style="font-size: 32px; font-weight: 900; color: #fbbf24; margin-top: 2px;">BNL-0000</div>
-            <div id="resParticipantName" style="font-size: 16px; font-weight: bold; margin-top: 2px;">Participant Name</div>
-            <div id="resDetails" style="font-size: 11px; color: #a7f3d0; margin-top: 2px;">Item: - | Rep: -</div>
-          </div>
+          <div><div style="font-size: 11px; color: #a7f3d0; font-weight: bold; text-transform: uppercase;">Raffle Ticket Generated</div><div id="resTicketCode" style="font-size: 32px; font-weight: 900; color: #fbbf24; margin-top: 2px;">BNL-0000</div><div id="resParticipantName" style="font-size: 16px; font-weight: bold; margin-top: 2px;"></div><div id="resDetails" style="font-size: 11px; color: #a7f3d0; margin-top: 2px;"></div></div>
           <button onclick="printCurrentTicket()" class="btn" style="background: #fbbf24; color: #0f172a; width: auto;"><i class="fa-solid fa-print"></i> Print Ticket Slip</button>
         </div>
       </div>
-
-      <!-- Raffle Log -->
       <div class="card">
         <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; border-bottom: 1px solid #e2e8f0; padding-bottom: 10px;">
-          <div>
-            <h3 style="font-size: 14px; font-weight: bold;"><i class="fa-solid fa-rectangle-list" style="color: #d97706;"></i> Raffle Log & Master Register</h3>
-            <p style="font-size: 11px; color: #64748b;">Ordered ticket numbers generated sequentially across all reps.</p>
-          </div>
-          <input type="text" id="raffleSearchInput" onkeyup="filterRaffleTable()" placeholder="Search name or ticket number..." style="max-width: 240px; padding: 6px 10px;">
+          <div><h3 style="font-size: 14px; font-weight: bold;"><i class="fa-solid fa-rectangle-list" style="color: #d97706;"></i> Raffle Log - Cloud</h3></div>
+          <input type="text" id="raffleSearchInput" onkeyup="filterRaffleTable()" placeholder="Search..." style="max-width: 240px; padding: 6px 10px;">
         </div>
-        <div class="table-container">
-          <table>
-            <thead>
-              <tr>
-                <th>Ticket No</th>
-                <th>Participant Name</th>
-                <th>Associated Item</th>
-                <th>Issued By (Rep)</th>
-                <th>Timestamp</th>
-                <th style="text-align: center;">Actions</th>
-              </tr>
-            </thead>
-            <tbody id="raffleTableBody">
-              <tr><td colspan="6" style="text-align: center; color: #94a3b8; font-style: italic;">No raffle entries issued yet.</td></tr>
-            </tbody>
-          </table>
-        </div>
+        <div class="table-container"><table><thead><tr><th>Ticket No</th><th>Participant Name</th><th>Associated Item</th><th>Issued By</th><th>Timestamp</th><th style="text-align: center;">Actions</th></tr></thead><tbody id="raffleTableBody"></tbody></table></div>
       </div>
     </div>
-
   </main>
 
-  <!-- EDIT SALE MODAL -->
-  <div id="editSaleModal" class="modal-overlay">
-    <div class="modal-content">
-      <h3 style="font-size: 16px; font-weight: bold; margin-bottom: 12px; color: #065f46;"><i class="fa-solid fa-pen-to-square"></i> Edit Sale Transaction</h3>
-      <form id="editSaleForm" onsubmit="saveEditedSale(event)" style="display: flex; flex-direction: column; gap: 10px;">
-        <input type="hidden" id="editSaleId">
-        <div>
-          <label>Product Name</label>
-          <input type="text" id="editSaleProduct" required>
-        </div>
-        <div>
-          <label>Unit Price (₦)</label>
-          <input type="number" id="editSalePrice" min="0" oninput="calculateEditSaleTotal()" required>
-        </div>
-        <div>
-          <label>Quantity</label>
-          <input type="number" id="editSaleQty" min="1" oninput="calculateEditSaleTotal()" required>
-        </div>
-        <div>
-          <label>Total Price (₦)</label>
-          <input type="text" id="editSaleTotal" readonly style="background: #f8fafc; font-weight: bold;">
-        </div>
-        <div>
-          <label>Customer Name</label>
-          <input type="text" id="editSaleCustomer">
-        </div>
-        <div>
-          <label>Sales Rep Name</label>
-          <input type="text" id="editSaleRep" required>
-        </div>
-        <div style="display: flex; gap: 8px; margin-top: 10px;">
-          <button type="submit" class="btn" style="flex: 1;">Save Changes</button>
-          <button type="button" onclick="closeModal('editSaleModal')" style="flex: 1; background: #cbd5e1; border: none; border-radius: 8px; font-weight: bold; cursor: pointer;">Cancel</button>
-        </div>
-      </form>
-    </div>
-  </div>
+  <div id="editSaleModal" class="modal-overlay"><div class="modal-content"><h3 style="font-size: 16px; font-weight: bold; margin-bottom: 12px; color: #065f46;">Edit Sale</h3><form onsubmit="saveEditedSale(event)" style="display: flex; flex-direction: column; gap: 10px;"><input type="hidden" id="editSaleId"><div><label>Product Name</label><input type="text" id="editSaleProduct" required></div><div><label>Unit Price (₦)</label><input type="number" id="editSalePrice" min="0" oninput="calculateEditSaleTotal()" required></div><div><label>Quantity</label><input type="number" id="editSaleQty" min="1" oninput="calculateEditSaleTotal()" required></div><div><label>Total Price (₦)</label><input type="text" id="editSaleTotal" readonly style="background: #f8fafc; font-weight: bold;"></div><div><label>Customer Name</label><input type="text" id="editSaleCustomer"></div><div><label>Sales Rep Name</label><input type="text" id="editSaleRep" required></div><div style="display: flex; gap: 8px; margin-top: 10px;"><button type="submit" class="btn" style="flex: 1;">Save to Cloud</button><button type="button" onclick="closeModal('editSaleModal')" style="flex: 1; background: #cbd5e1; border: none; border-radius: 8px; font-weight: bold; cursor: pointer;">Cancel</button></div></form></div></div>
+  <div id="editRaffleModal" class="modal-overlay"><div class="modal-content"><h3 style="font-size: 16px; font-weight: bold; margin-bottom: 12px; color: #d97706;">Edit Raffle</h3><form onsubmit="saveEditedRaffle(event)" style="display: flex; flex-direction: column; gap: 10px;"><input type="hidden" id="editRaffleId"><div><label>Ticket Number</label><input type="text" id="editRaffleCode" readonly style="background: #f8fafc; font-weight: bold; color: #d97706;"></div><div><label>Participant Name</label><input type="text" id="editRaffleName" required></div><div><label>Associated Purchase</label><select id="editRaffleNote" required><option value="Sorghum Mill">Sorghum Mill</option><option value="Stove">Stove</option><option value="Briquette">Briquette</option><option value="Activated Charcoal">Activated Charcoal</option><option value="Bitter Leaf Soap">Bitter Leaf Soap</option><option value="General Entry / Visitor">General Entry / Visitor</option></select></div><div><label>Sales Rep Name</label><input type="text" id="editRaffleRep" required></div><div style="display: flex; gap: 8px; margin-top: 10px;"><button type="submit" class="btn btn-amber" style="flex: 1;">Save</button><button type="button" onclick="closeModal('editRaffleModal')" style="flex: 1; background: #cbd5e1; border: none; border-radius: 8px; font-weight: bold; cursor: pointer;">Cancel</button></div></form></div></div>
 
-  <!-- EDIT RAFFLE MODAL -->
-  <div id="editRaffleModal" class="modal-overlay">
-    <div class="modal-content">
-      <h3 style="font-size: 16px; font-weight: bold; margin-bottom: 12px; color: #d97706;"><i class="fa-solid fa-pen-to-square"></i> Edit Raffle Entry</h3>
-      <form id="editRaffleForm" onsubmit="saveEditedRaffle(event)" style="display: flex; flex-direction: column; gap: 10px;">
-        <input type="hidden" id="editRaffleId">
-        <div>
-          <label>Ticket Number</label>
-          <input type="text" id="editRaffleCode" readonly style="background: #f8fafc; font-weight: bold; color: #d97706;">
-        </div>
-        <div>
-          <label>Participant Name</label>
-          <input type="text" id="editRaffleName" required>
-        </div>
-        <div>
-          <label>Associated Purchase</label>
-          <select id="editRaffleNote" required>
-            <option value="Sorghum Mill">Sorghum Mill</option>
-            <option value="Stove">Stove</option>
-            <option value="Briquette">Briquette</option>
-            <option value="Activated Charcoal">Activated Charcoal</option>
-            <option value="Bitter Leaf Soap">Bitter Leaf Soap</option>
-            <option value="General Entry / Visitor">General Entry / Visitor</option>
-          </select>
-        </div>
-        <div>
-          <label>Sales Rep Name</label>
-          <input type="text" id="editRaffleRep" required>
-        </div>
-        <div style="display: flex; gap: 8px; margin-top: 10px;">
-          <button type="submit" class="btn btn-amber" style="flex: 1;">Save Changes</button>
-          <button type="button" onclick="closeModal('editRaffleModal')" style="flex: 1; background: #cbd5e1; border: none; border-radius: 8px; font-weight: bold; cursor: pointer;">Cancel</button>
-        </div>
-      </form>
-    </div>
-  </div>
-
-  <!-- BOTTOM NAVIGATION -->
   <nav class="bottom-nav">
-    <button onclick="switchTab('home')" id="mobile-tab-home" class="nav-item active">
-      <i class="fa-solid fa-chart-pie"></i> Home
-    </button>
-    <button onclick="switchTab('sales')" id="mobile-tab-sales" class="nav-item">
-      <i class="fa-solid fa-cart-shopping"></i> Sales
-    </button>
-    <button onclick="switchTab('raffle')" id="mobile-tab-raffle" class="nav-item">
-      <i class="fa-solid fa-ticket"></i> Raffle
-    </button>
+    <button onclick="switchTab('home')" id="mobile-tab-home" class="nav-item active"><i class="fa-solid fa-chart-pie"></i> Home</button>
+    <button onclick="switchTab('sales')" id="mobile-tab-sales" class="nav-item"><i class="fa-solid fa-cart-shopping"></i> Sales</button>
+    <button onclick="switchTab('raffle')" id="mobile-tab-raffle" class="nav-item"><i class="fa-solid fa-ticket"></i> Raffle</button>
   </nav>
 
-  <!-- PRINT TEMPLATE -->
   <div id="printableTicketArea" style="display: none; padding: 20px; background: white; color: black;">
     <div style="border: 2px dashed black; padding: 20px; text-align: center; max-width: 280px; margin: 0 auto;">
       <h2 style="font-weight: 900; font-size: 20px;">BNL PRODUCTS</h2>
-      <p style="font-size: 10px; text-transform: uppercase; border-bottom: 1px solid black; padding-bottom: 6px; font-weight: bold; margin-top: 4px;">Official Raffle Entry Ticket</p>
-      <div style="padding: 10px 0;">
-        <p style="font-size: 10px;">TICKET NUMBER</p>
-        <p id="printTicketCode" style="font-size: 28px; font-weight: 900;">BNL-0001</p>
-      </div>
-      <div style="text-align: left; font-size: 11px; border-top: 1px solid black; padding-top: 6px; display: flex; flex-direction: column; gap: 4px;">
-        <div><strong>Name:</strong> <span id="printName">-</span></div>
-        <div><strong>Item:</strong> <span id="printItem">-</span></div>
-        <div><strong>Rep:</strong> <span id="printRep">-</span></div>
-        <div><strong>Date:</strong> <span id="printDate">-</span></div>
-      </div>
-      <p style="font-size: 9px; color: #555; font-style: italic; margin-top: 10px; border-top: 1px solid #ddd; padding-top: 4px;">Keep slip for manual winning draw selection.</p>
+      <p style="font-size: 10px; text-transform: uppercase; border-bottom: 1px solid black; padding-bottom: 6px; font-weight: bold;">Official Raffle Entry Ticket</p>
+      <div style="padding: 10px 0;"><p style="font-size: 10px;">TICKET NUMBER</p><p id="printTicketCode" style="font-size: 28px; font-weight: 900;">BNL-0001</p></div>
+      <div style="text-align: left; font-size: 11px; border-top: 1px solid black; padding-top: 6px; display: flex; flex-direction: column; gap: 4px;"><div><strong>Name:</strong> <span id="printName">-</span></div><div><strong>Item:</strong> <span id="printItem">-</span></div><div><strong>Rep:</strong> <span id="printRep">-</span></div><div><strong>Date:</strong> <span id="printDate">-</span></div></div>
     </div>
   </div>
 
-  <!-- JAVASCRIPT LOGIC -->
-  <script>
-    const PRODUCT_PRICES = {
-      "Sorghum Mill": 150000,
-      "Stove": 25000,
-      "Briquette": 3500,
-      "Activated Charcoal": 5000,
-      "Bitter Leaf Soap": 1500
+<script>
+const PRODUCT_PRICES = { "Sorghum Mill": 150000, "Stove": 25000, "Briquette": 3500, "Activated Charcoal": 5000, "Bitter Leaf Soap": 1500 };
+let salesList = [], raffleList = [], currentTicketObject = null, db = null;
+
+// === PASTE YOUR REAL FIREBASE CONFIG FROM BOSKEL-CARBON HERE ===
+const firebaseConfig = {
+  apiKey: "AIzaSyREPLACE_WITH_YOUR_REAL_KEY",
+  authDomain: "YOUR_PROJECT.firebaseapp.com",
+  projectId: "YOUR_PROJECT_ID",
+  storageBucket: "YOUR_PROJECT.appspot.com",
+  messagingSenderId: "123456789",
+  appId: "1:123456789:web:xxxxx"
+};
+
+function updateSyncBadge(text, color){
+  document.getElementById("syncText").innerText = text;
+  document.getElementById("syncDot").style.background = color;
+  const kpi = document.getElementById("kpi-sync-status");
+  if(kpi) kpi.innerText = text;
+}
+
+try{
+  if(firebaseConfig.apiKey.includes("REPLACE")){
+    throw new Error("REPLACE firebaseConfig with real config from boskel-carbon Firebase project. Go to Firebase Console > Project Settings > SDK Config > Copy");
+  }
+  if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+  db = firebase.firestore();
+  updateSyncBadge("Connecting to Cloud...", "#fbbf24");
+
+  db.collection("sales").orderBy("timestamp","desc").onSnapshot(snap=>{
+    salesList = snap.docs.map(d=>({docId:d.id, ...d.data()}));
+    updateSyncBadge("Live - Cloud Synced ✅", "#34d399");
+    refreshDataViews();
+  }, err=>{
+    updateSyncBadge("Firestore Error: " + err.message, "#ef4444");
+    document.getElementById("salesTableBody").innerHTML = `<tr><td colspan="8" style="color:red;">Error: ${err.message}<br><br>Fix Firestore Rules:<br>allow read, write: if true;</td></tr>`;
+  });
+
+  db.collection("raffles").orderBy("ticketNum","desc").onSnapshot(snap=>{
+    raffleList = snap.docs.map(d=>({docId:d.id, ...d.data()}));
+    refreshDataViews();
+  });
+
+}catch(e){
+  updateSyncBadge("Config Error", "#ef4444");
+  document.getElementById("salesTableBody").innerHTML = `<tr><td colspan="8" style="color:red; font-weight:bold;">${e.message}</td></tr>`;
+}
+
+function switchTab(tabName){
+  document.querySelectorAll('.tab-content').forEach(el=>el.classList.remove('active'));
+  document.getElementById('tab-'+tabName).classList.add('active');
+  ['home','sales','raffle'].forEach(t=>{
+    const b=document.getElementById('mobile-tab-'+t);
+    if(b) b.classList.remove('active');
+  });
+  const a=document.getElementById('mobile-tab-'+tabName);
+  if(a) a.classList.add('active');
+}
+function closeModal(id){ document.getElementById(id).style.display="none"; }
+function onProductSelectChange(){
+  const sel=document.getElementById("saleProduct");
+  const box=document.getElementById("customProductBox");
+  const price=document.getElementById("salePrice");
+  if(sel.value==="Other / Custom Product"){ box.style.display="block"; document.getElementById("customProductName").required=true; price.value=""; }
+  else{ box.style.display="none"; document.getElementById("customProductName").required=false; if(PRODUCT_PRICES[sel.value]) price.value=PRODUCT_PRICES[sel.value]; }
+  calculateSaleTotal();
+}
+function calculateSaleTotal(){
+  const p=parseFloat(document.getElementById("salePrice").value)||0;
+  const q=parseInt(document.getElementById("saleQty").value)||0;
+  document.getElementById("saleTotal").value="₦"+(p*q).toLocaleString('en-US',{minimumFractionDigits:2});
+}
+function calculateEditSaleTotal(){
+  const p=parseFloat(document.getElementById("editSalePrice").value)||0;
+  const q=parseInt(document.getElementById("editSaleQty").value)||0;
+  document.getElementById("editSaleTotal").value="₦"+(p*q).toLocaleString('en-US',{minimumFractionDigits:2});
+}
+
+async function handleSaleSubmit(e){
+  e.preventDefault();
+  const btn=document.getElementById("saleBtn");
+  btn.disabled=true; btn.innerHTML="<i class='fa-solid fa-spinner fa-spin'></i> Saving to Cloud...";
+  try{
+    const prodSel=document.getElementById("saleProduct").value;
+    const prodName=prodSel==="Other / Custom Product"?document.getElementById("customProductName").value:prodSel;
+    const price=parseFloat(document.getElementById("salePrice").value)||0;
+    const qty=parseInt(document.getElementById("saleQty").value)||1;
+    const newSale={
+      productName:prodName,
+      unitPrice:price,
+      qty:qty,
+      totalAmount:price*qty,
+      customerName:document.getElementById("saleCustomer").value.trim()||"Walk-in",
+      repName:document.getElementById("saleRep").value.trim(),
+      timestamp:new Date().toISOString(),
+      timeStr:new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}),
+      dateStr:new Date().toISOString().split('T')[0]
     };
+    await db.collection("sales").add(newSale);
+    document.getElementById("saleStatus").innerText="✅ Saved to cloud! Will stay after refresh";
+    document.getElementById("salesForm").reset();
+    document.getElementById("saleTotal").value="₦0.00";
+    document.getElementById("customProductBox").style.display="none";
+    setTimeout(()=>{document.getElementById("saleStatus").innerText="";},3000);
+  }catch(err){ document.getElementById("saleStatus").innerText="❌ "+err.message; alert(err.message); }
+  btn.disabled=false; btn.innerHTML="<i class='fa-solid fa-check'></i> Submit Transaction - Cloud Save";
+}
 
-    let salesList = [];
-    let raffleList = [];
-    let isFirebaseActive = false;
-    let currentTicketObject = null;
-    let db = null;
-
-    const firebaseConfig = {
-      apiKey: "demo-key-bnl",
-      authDomain: "bnl-products.firebaseapp.com",
-      projectId: "bnl-products-event",
-      storageBucket: "bnl-products.appspot.com",
-      messagingSenderId: "123456789",
-      appId: "1:123456789:web:bnl"
+async function handleRaffleSubmit(e){
+  e.preventDefault();
+  try{
+    const nextNum=raffleList.length+1;
+    const ticketCode="BNL-"+String(nextNum).padStart(4,'0');
+    const newRaffle={
+      ticketNum:nextNum,
+      ticketCode:ticketCode,
+      participantName:document.getElementById("raffleName").value.trim(),
+      itemNote:document.getElementById("raffleNote").value,
+      repName:document.getElementById("raffleRep").value.trim(),
+      timestamp:new Date().toISOString(),
+      dateStr:new Date().toLocaleDateString()+" "+new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})
     };
+    await db.collection("raffles").add(newRaffle);
+    currentTicketObject=newRaffle;
+    document.getElementById("resTicketCode").innerText=ticketCode;
+    document.getElementById("resParticipantName").innerText=newRaffle.participantName;
+    document.getElementById("resDetails").innerText=`Item: ${newRaffle.itemNote} | Rep: ${newRaffle.repName}`;
+    document.getElementById("ticketResultCard").style.display="block";
+    document.getElementById("raffleName").value="";
+    document.getElementById("raffleStatus").innerText="✅ Ticket saved to cloud";
+  }catch(err){ document.getElementById("raffleStatus").innerText="❌ "+err.message; }
+}
 
-    try {
-      if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
-      db = firebase.firestore();
-      
-      db.collection("sales").orderBy("timestamp", "desc").onSnapshot(snapshot => {
-        isFirebaseActive = true;
-        updateSyncBadge(true, "Firebase Connected");
-        salesList = snapshot.docs.map(doc => ({ docId: doc.id, ...doc.data() }));
-        refreshDataViews();
-      }, err => initLocalMode());
+function openEditSale(id){
+  const s=salesList.find(x=>x.docId===id); if(!s) return;
+  document.getElementById("editSaleId").value=s.docId;
+  document.getElementById("editSaleProduct").value=s.productName;
+  document.getElementById("editSalePrice").value=s.unitPrice;
+  document.getElementById("editSaleQty").value=s.qty;
+  document.getElementById("editSaleCustomer").value=s.customerName;
+  document.getElementById("editSaleRep").value=s.repName;
+  calculateEditSaleTotal();
+  document.getElementById("editSaleModal").style.display="flex";
+}
+async function saveEditedSale(e){
+  e.preventDefault();
+  const id=document.getElementById("editSaleId").value;
+  const price=parseFloat(document.getElementById("editSalePrice").value)||0;
+  const qty=parseInt(document.getElementById("editSaleQty").value)||1;
+  const data={ productName:document.getElementById("editSaleProduct").value, unitPrice:price, qty:qty, totalAmount:price*qty, customerName:document.getElementById("editSaleCustomer").value, repName:document.getElementById("editSaleRep").value };
+  await db.collection("sales").doc(id).update(data);
+  closeModal("editSaleModal");
+}
+async function deleteSale(id){
+  if(!confirm("Delete this sale from cloud for all users?")) return;
+  await db.collection("sales").doc(id).delete();
+}
+function openEditRaffle(id){
+  const r=raffleList.find(x=>x.docId===id); if(!r) return;
+  document.getElementById("editRaffleId").value=r.docId;
+  document.getElementById("editRaffleCode").value=r.ticketCode;
+  document.getElementById("editRaffleName").value=r.participantName;
+  document.getElementById("editRaffleNote").value=r.itemNote;
+  document.getElementById("editRaffleRep").value=r.repName;
+  document.getElementById("editRaffleModal").style.display="flex";
+}
+async function saveEditedRaffle(e){
+  e.preventDefault();
+  const id=document.getElementById("editRaffleId").value;
+  const data={ participantName:document.getElementById("editRaffleName").value, itemNote:document.getElementById("editRaffleNote").value, repName:document.getElementById("editRaffleRep").value };
+  await db.collection("raffles").doc(id).update(data);
+  closeModal("editRaffleModal");
+}
+async function deleteRaffle(id){
+  if(!confirm("Delete this ticket from cloud?")) return;
+  await db.collection("raffles").doc(id).delete();
+}
 
-      db.collection("raffles").orderBy("ticketNum", "desc").onSnapshot(snapshot => {
-        raffleList = snapshot.docs.map(doc => ({ docId: doc.id, ...doc.data() }));
-        refreshDataViews();
-      }, err => console.warn("Raffle sync fallback", err));
-    } catch (e) {
-      initLocalMode();
-    }
-
-    function initLocalMode() {
-      isFirebaseActive = false;
-      updateSyncBadge(false, "Local Mode");
-      if (localStorage.getItem("bnl_sales")) salesList = JSON.parse(localStorage.getItem("bnl_sales"));
-      if (localStorage.getItem("bnl_raffles")) raffleList = JSON.parse(localStorage.getItem("bnl_raffles"));
-      refreshDataViews();
-    }
-
-    function updateSyncBadge(isLive, text) {
-      document.getElementById("syncText").innerText = text;
-      document.getElementById("syncDot").style.background = isLive ? "#34d399" : "#fbbf24";
-    }
-
-    function switchTab(tabName) {
-      document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
-      document.getElementById('tab-' + tabName).classList.add('active');
-
-      ['home', 'sales', 'raffle'].forEach(t => {
-        const mBtn = document.getElementById('mobile-tab-' + t);
-        if (mBtn) mBtn.classList.remove('active');
-      });
-      const activeMobileBtn = document.getElementById('mobile-tab-' + tabName);
-      if (activeMobileBtn) activeMobileBtn.classList.add('active');
-    }
-
-    function closeModal(modalId) {
-      document.getElementById(modalId).style.display = "none";
-    }
-
-    function onProductSelectChange() {
-      const select = document.getElementById("saleProduct");
-      const customBox = document.getElementById("customProductBox");
-      const priceInput = document.getElementById("salePrice");
-
-      if (select.value === "Other / Custom Product") {
-        customBox.style.display = "block";
-        document.getElementById("customProductName").required = true;
-        priceInput.value = "";
-      } else {
-        customBox.style.display = "none";
-        document.getElementById("customProductName").required = false;
-        if (PRODUCT_PRICES[select.value]) priceInput.value = PRODUCT_PRICES[select.value];
-      }
-      calculateSaleTotal();
-    }
-
-    function calculateSaleTotal() {
-      const price = parseFloat(document.getElementById("salePrice").value) || 0;
-      const qty = parseInt(document.getElementById("saleQty").value) || 0;
-      document.getElementById("saleTotal").value = "₦" + (price * qty).toLocaleString('en-US', { minimumFractionDigits: 2 });
-    }
-
-    function calculateEditSaleTotal() {
-      const price = parseFloat(document.getElementById("editSalePrice").value) || 0;
-      const qty = parseInt(document.getElementById("editSaleQty").value) || 0;
-      document.getElementById("editSaleTotal").value = "₦" + (price * qty).toLocaleString('en-US', { minimumFractionDigits: 2 });
-    }
-
-    function handleSaleSubmit(e) {
-      e.preventDefault();
-      const productSelect = document.getElementById("saleProduct").value;
-      const productName = productSelect === "Other / Custom Product" 
-        ? document.getElementById("customProductName").value 
-        : productSelect;
-      
-      const price = parseFloat(document.getElementById("salePrice").value) || 0;
-      const qty = parseInt(document.getElementById("saleQty").value) || 1;
-      
-      const newSale = {
-        id: "sale_" + Date.now(),
-        productName,
-        unitPrice: price,
-        qty,
-        totalAmount: price * qty,
-        customerName: document.getElementById("saleCustomer").value.trim() || "Walk-in",
-        repName: document.getElementById("saleRep").value.trim(),
-        timestamp: new Date().toISOString(),
-        timeStr: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-      };
-
-      if (isFirebaseActive && db) {
-        db.collection("sales").add(newSale);
-      } else {
-        salesList.unshift(newSale);
-        localStorage.setItem("bnl_sales", JSON.stringify(salesList));
-        refreshDataViews();
-      }
-
-      document.getElementById("salesForm").reset();
-      document.getElementById("saleTotal").value = "₦0.00";
-      document.getElementById("customProductBox").style.display = "none";
-      alert("Sale Recorded Successfully!");
-    }
-
-    function handleRaffleSubmit(e) {
-      e.preventDefault();
-      const nextNum = raffleList.length + 1;
-      const ticketCode = "BNL-" + String(nextNum).padStart(4, '0');
-
-      const newRaffle = {
-        id: "raf_" + Date.now(),
-        ticketNum: nextNum,
-        ticketCode,
-        participantName: document.getElementById("raffleName").value.trim(),
-        itemNote: document.getElementById("raffleNote").value,
-        repName: document.getElementById("raffleRep").value.trim(),
-        timestamp: new Date().toISOString(),
-        dateStr: new Date().toLocaleDateString() + " " + new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-      };
-
-      if (isFirebaseActive && db) {
-        db.collection("raffles").add(newRaffle);
-      } else {
-        raffleList.unshift(newRaffle);
-        localStorage.setItem("bnl_raffles", JSON.stringify(raffleList));
-        refreshDataViews();
-      }
-
-      currentTicketObject = newRaffle;
-      document.getElementById("resTicketCode").innerText = ticketCode;
-      document.getElementById("resParticipantName").innerText = newRaffle.participantName;
-      document.getElementById("resDetails").innerText = `Item: ${newRaffle.itemNote} | Rep: ${newRaffle.repName}`;
-      document.getElementById("ticketResultCard").style.display = "block";
-
-      document.getElementById("raffleName").value = "";
-      document.getElementById("raffleNote").selectedIndex = 0;
-    }
-
-    // EDIT SALE
-    function openEditSale(id) {
-      const sale = salesList.find(s => s.id === id || s.docId === id);
-      if (!sale) return;
-
-      document.getElementById("editSaleId").value = sale.docId || sale.id;
-      document.getElementById("editSaleProduct").value = sale.productName;
-      document.getElementById("editSalePrice").value = sale.unitPrice;
-      document.getElementById("editSaleQty").value = sale.qty;
-      document.getElementById("editSaleCustomer").value = sale.customerName;
-      document.getElementById("editSaleRep").value = sale.repName;
-      calculateEditSaleTotal();
-
-      document.getElementById("editSaleModal").style.display = "flex";
-    }
-
-    function saveEditedSale(e) {
-      e.preventDefault();
-      const id = document.getElementById("editSaleId").value;
-      const price = parseFloat(document.getElementById("editSalePrice").value) || 0;
-      const qty = parseInt(document.getElementById("editSaleQty").value) || 1;
-
-      const updatedData = {
-        productName: document.getElementById("editSaleProduct").value,
-        unitPrice: price,
-        qty: qty,
-        totalAmount: price * qty,
-        customerName: document.getElementById("editSaleCustomer").value,
-        repName: document.getElementById("editSaleRep").value
-      };
-
-      if (isFirebaseActive && db) {
-        const sale = salesList.find(s => s.docId === id || s.id === id);
-        if (sale && sale.docId) {
-          db.collection("sales").doc(sale.docId).update(updatedData);
-        }
-      } else {
-        const index = salesList.findIndex(s => s.id === id || s.docId === id);
-        if (index !== -1) {
-          salesList[index] = { ...salesList[index], ...updatedData };
-          localStorage.setItem("bnl_sales", JSON.stringify(salesList));
-          refreshDataViews();
-        }
-      }
-
-      closeModal("editSaleModal");
-      alert("Sale updated successfully!");
-    }
-
-    // DELETE SALE
-    function deleteSale(id) {
-      if (!confirm("Are you sure you want to delete this sales transaction?")) return;
-
-      if (isFirebaseActive && db) {
-        const sale = salesList.find(s => s.docId === id || s.id === id);
-        if (sale && sale.docId) {
-          db.collection("sales").doc(sale.docId).delete();
-        }
-      } else {
-        salesList = salesList.filter(s => s.id !== id && s.docId !== id);
-        localStorage.setItem("bnl_sales", JSON.stringify(salesList));
-        refreshDataViews();
-      }
-    }
-
-    // EDIT RAFFLE
-    function openEditRaffle(id) {
-      const raf = raffleList.find(r => r.id === id || r.docId === id);
-      if (!raf) return;
-
-      document.getElementById("editRaffleId").value = raf.docId || raf.id;
-      document.getElementById("editRaffleCode").value = raf.ticketCode;
-      document.getElementById("editRaffleName").value = raf.participantName;
-      document.getElementById("editRaffleNote").value = raf.itemNote;
-      document.getElementById("editRaffleRep").value = raf.repName;
-
-      document.getElementById("editRaffleModal").style.display = "flex";
-    }
-
-    function saveEditedRaffle(e) {
-      e.preventDefault();
-      const id = document.getElementById("editRaffleId").value;
-
-      const updatedData = {
-        participantName: document.getElementById("editRaffleName").value,
-        itemNote: document.getElementById("editRaffleNote").value,
-        repName: document.getElementById("editRaffleRep").value
-      };
-
-      if (isFirebaseActive && db) {
-        const raf = raffleList.find(r => r.docId === id || r.id === id);
-        if (raf && raf.docId) {
-          db.collection("raffles").doc(raf.docId).update(updatedData);
-        }
-      } else {
-        const index = raffleList.findIndex(r => r.id === id || r.docId === id);
-        if (index !== -1) {
-          raffleList[index] = { ...raffleList[index], ...updatedData };
-          localStorage.setItem("bnl_raffles", JSON.stringify(raffleList));
-          refreshDataViews();
-        }
-      }
-
-      closeModal("editRaffleModal");
-      alert("Raffle entry updated successfully!");
-    }
-
-    // DELETE RAFFLE
-    function deleteRaffle(id) {
-      if (!confirm("Are you sure you want to delete this raffle ticket?")) return;
-
-      if (isFirebaseActive && db) {
-        const raf = raffleList.find(r => r.docId === id || r.id === id);
-        if (raf && raf.docId) {
-          db.collection("raffles").doc(raf.docId).delete();
-        }
-      } else {
-        raffleList = raffleList.filter(r => r.id !== id && r.docId !== id);
-        localStorage.setItem("bnl_raffles", JSON.stringify(raffleList));
-        refreshDataViews();
-      }
-    }
-
-    function refreshDataViews() {
-      const totalRev = salesList.reduce((sum, item) => sum + (item.totalAmount || 0), 0);
-      const totalUnits = salesList.reduce((sum, item) => sum + (item.qty || 0), 0);
-      
-      document.getElementById("kpi-revenue").innerText = "₦" + totalRev.toLocaleString();
-      document.getElementById("kpi-tx-count").innerText = `${salesList.length} transactions`;
-      document.getElementById("kpi-items").innerText = totalUnits;
-      document.getElementById("kpi-raffle").innerText = raffleList.length;
-      document.getElementById("kpi-latest-ticket").innerText = raffleList.length > 0 ? `Latest: ${raffleList[0].ticketCode}` : "Latest: None";
-
-      renderCharts();
-      renderSalesTable();
-      renderRaffleTable();
-    }
-
-    function renderCharts() {
-      const products = ["Sorghum Mill", "Stove", "Briquette", "Activated Charcoal", "Bitter Leaf Soap"];
-      let revMap = {}, unitMap = {};
-      products.forEach(p => { revMap[p] = 0; unitMap[p] = 0; });
-
-      salesList.forEach(s => {
-        if (!revMap[s.productName]) { revMap[s.productName] = 0; unitMap[s.productName] = 0; }
-        revMap[s.productName] += s.totalAmount;
-        unitMap[s.productName] += s.qty;
-      });
-
-      const maxRev = Math.max(...Object.values(revMap), 1);
-      const maxUnits = Math.max(...Object.values(unitMap), 1);
-
-      document.getElementById("chart-revenue-container").innerHTML = Object.keys(revMap).map(prod => `
-        <div>
-          <div style="display: flex; justify-content: space-between; font-size: 11px; font-weight: bold; margin-bottom: 4px;">
-            <span>${prod}</span><span style="color: #059669;">₦${revMap[prod].toLocaleString()}</span>
-          </div>
-          <div style="background: #f1f5f9; border-radius: 99px; height: 12px; overflow: hidden;">
-            <div style="background: #059669; height: 100%; width: ${Math.min(100, Math.round((revMap[prod]/maxRev)*100))}%"></div>
-          </div>
-        </div>
-      `).join('');
-
-      document.getElementById("chart-units-container").innerHTML = Object.keys(unitMap).map(prod => `
-        <div>
-          <div style="display: flex; justify-content: space-between; font-size: 11px; font-weight: bold; margin-bottom: 4px;">
-            <span>${prod}</span><span style="color: #2563eb;">${unitMap[prod]} units</span>
-          </div>
-          <div style="background: #f1f5f9; border-radius: 99px; height: 12px; overflow: hidden;">
-            <div style="background: #2563eb; height: 100%; width: ${Math.min(100, Math.round((unitMap[prod]/maxUnits)*100))}%"></div>
-          </div>
-        </div>
-      `).join('');
-    }
-
-    function renderSalesTable() {
-      const tbody = document.getElementById("salesTableBody");
-      if (salesList.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="8" style="text-align: center; color: #94a3b8; font-style: italic;">No sales transactions logged yet.</td></tr>`;
-        return;
-      }
-      tbody.innerHTML = salesList.map(s => {
-        const identifier = s.docId || s.id;
-        return `
-          <tr>
-            <td>${s.timeStr || '-'}</td>
-            <td style="font-weight: bold;">${s.productName}</td>
-            <td style="text-align: center; font-weight: bold;">${s.qty}</td>
-            <td style="text-align: right;">₦${(s.unitPrice || 0).toLocaleString()}</td>
-            <td style="text-align: right; font-weight: 900; color: #059669;">₦${(s.totalAmount || 0).toLocaleString()}</td>
-            <td>${s.customerName || 'Walk-in'}</td>
-            <td>${s.repName}</td>
-            <td style="text-align: center; white-space: nowrap;">
-              <button onclick="openEditSale('${identifier}')" class="btn-edit">Edit</button>
-              <button onclick="deleteSale('${identifier}')" class="btn-danger">Delete</button>
-            </td>
-          </tr>
-        `;
-      }).join('');
-    }
-
-    function filterSalesTable() {
-      const q = document.getElementById("salesSearchInput").value.toLowerCase();
-      document.querySelectorAll("#salesTableBody tr").forEach(row => {
-        row.style.display = row.innerText.toLowerCase().includes(q) ? "" : "none";
-      });
-    }
-
-    function renderRaffleTable() {
-      const tbody = document.getElementById("raffleTableBody");
-      if (raffleList.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: #94a3b8; font-style: italic;">No raffle entries issued yet.</td></tr>`;
-        return;
-      }
-      tbody.innerHTML = raffleList.map(r => {
-        const identifier = r.docId || r.id;
-        return `
-          <tr>
-            <td style="font-weight: 900; color: #d97706;">${r.ticketCode}</td>
-            <td style="font-weight: bold;">${r.participantName}</td>
-            <td>${r.itemNote}</td>
-            <td>${r.repName}</td>
-            <td style="color: #64748b; font-size: 10px;">${r.dateStr || '-'}</td>
-            <td style="text-align: center; white-space: nowrap;">
-              <button onclick="reprintTicket('${r.ticketCode}')" style="padding: 4px 8px; background: #e2e8f0; border: none; border-radius: 4px; font-weight: bold; cursor: pointer; font-size: 10px; margin-right: 2px;">Print</button>
-              <button onclick="openEditRaffle('${identifier}')" class="btn-edit">Edit</button>
-              <button onclick="deleteRaffle('${identifier}')" class="btn-danger">Delete</button>
-            </td>
-          </tr>
-        `;
-      }).join('');
-    }
-
-    function filterRaffleTable() {
-      const q = document.getElementById("raffleSearchInput").value.toLowerCase();
-      document.querySelectorAll("#raffleTableBody tr").forEach(row => {
-        row.style.display = row.innerText.toLowerCase().includes(q) ? "" : "none";
-      });
-    }
-
-    function printCurrentTicket() {
-      if (!currentTicketObject) return;
-      printSingleTicket(currentTicketObject);
-    }
-
-    function reprintTicket(code) {
-      const ticket = raffleList.find(r => r.ticketCode === code);
-      if (ticket) printSingleTicket(ticket);
-    }
-
-    function printSingleTicket(raf) {
-      document.getElementById("printTicketCode").innerText = raf.ticketCode;
-      document.getElementById("printName").innerText = raf.participantName;
-      document.getElementById("printItem").innerText = raf.itemNote;
-      document.getElementById("printRep").innerText = raf.repName;
-      document.getElementById("printDate").innerText = raf.dateStr || new Date().toLocaleString();
-      window.print();
-    }
-  </script>
+function refreshDataViews(){
+  const totalRev=salesList.reduce((s,i)=>s+(i.totalAmount||0),0);
+  const totalUnits=salesList.reduce((s,i)=>s+(i.qty||0),0);
+  document.getElementById("kpi-revenue").innerText="₦"+totalRev.toLocaleString();
+  document.getElementById("kpi-tx-count").innerText=`${salesList.length} transactions - cloud`;
+  document.getElementById("kpi-items").innerText=totalUnits;
+  document.getElementById("kpi-raffle").innerText=raffleList.length;
+  document.getElementById("kpi-latest-ticket").innerText=raffleList.length>0?`Latest: ${raffleList[0].ticketCode}`:"Latest: None";
+  renderCharts(); renderSalesTable(); renderRaffleTable();
+}
+function renderCharts(){
+  const products=["Sorghum Mill","Stove","Briquette","Activated Charcoal","Bitter Leaf Soap"];
+  let revMap={},unitMap={};
+  products.forEach(p=>{revMap[p]=0;unitMap[p]=0;});
+  salesList.forEach(s=>{ if(!revMap[s.productName]){revMap[s.productName]=0;unitMap[s.productName]=0;} revMap[s.productName]+=s.totalAmount; unitMap[s.productName]+=s.qty; });
+  const maxRev=Math.max(...Object.values(revMap),1);
+  const maxUnits=Math.max(...Object.values(unitMap),1);
+  document.getElementById("chart-revenue-container").innerHTML=Object.keys(revMap).map(prod=>`<div><div style="display:flex;justify-content:space-between;font-size:11px;font-weight:bold;margin-bottom:4px;"><span>${prod}</span><span style="color:#059669;">₦${revMap[prod].toLocaleString()}</span></div><div style="background:#f1f5f9;border-radius:99px;height:12px;overflow:hidden;"><div style="background:#059669;height:100%;width:${Math.min(100,Math.round((revMap[prod]/maxRev)*100))}%"></div></div></div>`).join('');
+  document.getElementById("chart-units-container").innerHTML=Object.keys(unitMap).map(prod=>`<div><div style="display:flex;justify-content:space-between;font-size:11px;font-weight:bold;margin-bottom:4px;"><span>${prod}</span><span style="color:#2563eb;">${unitMap[prod]} units</span></div><div style="background:#f1f5f9;border-radius:99px;height:12px;overflow:hidden;"><div style="background:#2563eb;height:100%;width:${Math.min(100,Math.round((unitMap[prod]/maxUnits)*100))}%"></div></div></div>`).join('');
+}
+function renderSalesTable(){
+  const tbody=document.getElementById("salesTableBody");
+  if(salesList.length===0){ tbody.innerHTML=`<tr><td colspan="8" style="text-align:center;color:#94a3b8;font-style:italic;">No sales yet - will load from cloud, data will not disappear</td></tr>`; return; }
+  tbody.innerHTML=salesList.map(s=>`<tr><td>${s.timeStr||'-'}</td><td style="font-weight:bold;">${s.productName}</td><td style="text-align:center;font-weight:bold;">${s.qty}</td><td style="text-align:right;">₦${(s.unitPrice||0).toLocaleString()}</td><td style="text-align:right;font-weight:900;color:#059669;">₦${(s.totalAmount||0).toLocaleString()}</td><td>${s.customerName||'Walk-in'}</td><td>${s.repName}</td><td style="text-align:center;white-space:nowrap;"><button onclick="openEditSale('${s.docId}')" class="btn-edit">Edit</button><button onclick="deleteSale('${s.docId}')" class="btn-danger">Delete</button></td></tr>`).join('');
+}
+function filterSalesTable(){
+  const q=document.getElementById("salesSearchInput").value.toLowerCase();
+  document.querySelectorAll("#salesTableBody tr").forEach(row=>{ row.style.display=row.innerText.toLowerCase().includes(q)?"":"none"; });
+}
+function renderRaffleTable(){
+  const tbody=document.getElementById("raffleTableBody");
+  if(raffleList.length===0){ tbody.innerHTML=`<tr><td colspan="6" style="text-align:center;color:#94a3b8;font-style:italic;">No raffle entries - cloud</td></tr>`; return; }
+  tbody.innerHTML=raffleList.map(r=>`<tr><td style="font-weight:900;color:#d97706;">${r.ticketCode}</td><td style="font-weight:bold;">${r.participantName}</td><td>${r.itemNote}</td><td>${r.repName}</td><td style="color:#64748b;font-size:10px;">${r.dateStr||'-'}</td><td style="text-align:center;white-space:nowrap;"><button onclick="reprintTicket('${r.ticketCode}')" style="padding:4px 8px;background:#e2e8f0;border:none;border-radius:4px;font-weight:bold;cursor:pointer;font-size:10px;margin-right:2px;">Print</button><button onclick="openEditRaffle('${r.docId}')" class="btn-edit">Edit</button><button onclick="deleteRaffle('${r.docId}')" class="btn-danger">Delete</button></td></tr>`).join('');
+}
+function filterRaffleTable(){
+  const q=document.getElementById("raffleSearchInput").value.toLowerCase();
+  document.querySelectorAll("#raffleTableBody tr").forEach(row=>{ row.style.display=row.innerText.toLowerCase().includes(q)?"":"none"; });
+}
+function printCurrentTicket(){ if(!currentTicketObject) return; printSingleTicket(currentTicketObject); }
+function reprintTicket(code){ const t=raffleList.find(r=>r.ticketCode===code); if(t) printSingleTicket(t); }
+function printSingleTicket(raf){
+  document.getElementById("printTicketCode").innerText=raf.ticketCode;
+  document.getElementById("printName").innerText=raf.participantName;
+  document.getElementById("printItem").innerText=raf.itemNote;
+  document.getElementById("printRep").innerText=raf.repName;
+  document.getElementById("printDate").innerText=raf.dateStr||new Date().toLocaleString();
+  window.print();
+}
+</script>
 </body>
 </html>
