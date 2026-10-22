@@ -54,10 +54,7 @@
     <div class="header-container">
       <div class="brand-box">
         <div class="brand-logo">BNL</div>
-        <div>
-          <h1 style="font-size: 15px; font-weight: 900;">BNL PRODUCTS</h1>
-          <p style="font-size: 10px; color: #a7f3d0;">1-DAY EVENT SALES & RAFFLE HUB - CLOUD LIVE</p>
-        </div>
+        <div><h1 style="font-size: 15px; font-weight: 900;">BNL PRODUCTS</h1><p style="font-size: 10px; color: #a7f3d0;">1-DAY EVENT SALES & RAFFLE HUB - CLOUD LIVE</p></div>
       </div>
       <div class="sync-badge"><span class="sync-dot" id="syncDot"></span><span id="syncText">Connecting...</span></div>
     </div>
@@ -75,7 +72,6 @@
         <div class="card"><h3 style="font-size: 14px; font-weight: bold; margin-bottom: 12px;"><i class="fa-solid fa-chart-bar" style="color: #2563eb;"></i> Units Sold Volume</h3><div id="chart-units-container"></div></div>
       </div>
     </div>
-
     <div id="tab-sales" class="tab-content">
       <div class="card">
         <h2 style="font-size: 15px; font-weight: bold; margin-bottom: 12px;"><i class="fa-solid fa-cart-plus" style="color: #059669;"></i> Record New Sale</h2>
@@ -101,7 +97,6 @@
         <div class="table-container"><table><thead><tr><th>Time</th><th>Product</th><th style="text-align: center;">Qty</th><th style="text-align: right;">Unit Price</th><th style="text-align: right;">Total</th><th>Customer</th><th>Sales Rep</th><th style="text-align: center;">Actions</th></tr></thead><tbody id="salesTableBody"></tbody></table></div>
       </div>
     </div>
-
     <div id="tab-raffle" class="tab-content">
       <div class="card">
         <h2 style="font-size: 15px; font-weight: bold; margin-bottom: 12px;"><i class="fa-solid fa-ticket" style="color: #d97706;"></i> Issue Raffle Ticket</h2>
@@ -130,16 +125,13 @@
       </div>
     </div>
   </main>
-
   <div id="editSaleModal" class="modal-overlay"><div class="modal-content"><h3 style="font-size: 16px; font-weight: bold; margin-bottom: 12px; color: #065f46;">Edit Sale</h3><form onsubmit="saveEditedSale(event)" style="display: flex; flex-direction: column; gap: 10px;"><input type="hidden" id="editSaleId"><div><label>Product Name</label><input type="text" id="editSaleProduct" required></div><div><label>Unit Price (₦)</label><input type="number" id="editSalePrice" min="0" oninput="calculateEditSaleTotal()" required></div><div><label>Quantity</label><input type="number" id="editSaleQty" min="1" oninput="calculateEditSaleTotal()" required></div><div><label>Total Price (₦)</label><input type="text" id="editSaleTotal" readonly style="background: #f8fafc; font-weight: bold;"></div><div><label>Customer Name</label><input type="text" id="editSaleCustomer"></div><div><label>Sales Rep Name</label><input type="text" id="editSaleRep" required></div><div style="display: flex; gap: 8px; margin-top: 10px;"><button type="submit" class="btn" style="flex: 1;">Save to Cloud</button><button type="button" onclick="closeModal('editSaleModal')" style="flex: 1; background: #cbd5e1; border: none; border-radius: 8px; font-weight: bold; cursor: pointer;">Cancel</button></div></form></div></div>
   <div id="editRaffleModal" class="modal-overlay"><div class="modal-content"><h3 style="font-size: 16px; font-weight: bold; margin-bottom: 12px; color: #d97706;">Edit Raffle</h3><form onsubmit="saveEditedRaffle(event)" style="display: flex; flex-direction: column; gap: 10px;"><input type="hidden" id="editRaffleId"><div><label>Ticket Number</label><input type="text" id="editRaffleCode" readonly style="background: #f8fafc; font-weight: bold; color: #d97706;"></div><div><label>Participant Name</label><input type="text" id="editRaffleName" required></div><div><label>Associated Purchase</label><select id="editRaffleNote" required><option value="Sorghum Mill">Sorghum Mill</option><option value="Stove">Stove</option><option value="Briquette">Briquette</option><option value="Activated Charcoal">Activated Charcoal</option><option value="Bitter Leaf Soap">Bitter Leaf Soap</option><option value="General Entry / Visitor">General Entry / Visitor</option></select></div><div><label>Sales Rep Name</label><input type="text" id="editRaffleRep" required></div><div style="display: flex; gap: 8px; margin-top: 10px;"><button type="submit" class="btn btn-amber" style="flex: 1;">Save</button><button type="button" onclick="closeModal('editRaffleModal')" style="flex: 1; background: #cbd5e1; border: none; border-radius: 8px; font-weight: bold; cursor: pointer;">Cancel</button></div></form></div></div>
-
   <nav class="bottom-nav">
     <button onclick="switchTab('home')" id="mobile-tab-home" class="nav-item active"><i class="fa-solid fa-chart-pie"></i> Home</button>
     <button onclick="switchTab('sales')" id="mobile-tab-sales" class="nav-item"><i class="fa-solid fa-cart-shopping"></i> Sales</button>
     <button onclick="switchTab('raffle')" id="mobile-tab-raffle" class="nav-item"><i class="fa-solid fa-ticket"></i> Raffle</button>
   </nav>
-
   <div id="printableTicketArea" style="display: none; padding: 20px; background: white; color: black;">
     <div style="border: 2px dashed black; padding: 20px; text-align: center; max-width: 280px; margin: 0 auto;">
       <h2 style="font-weight: 900; font-size: 20px;">BNL PRODUCTS</h2>
@@ -148,19 +140,19 @@
       <div style="text-align: left; font-size: 11px; border-top: 1px solid black; padding-top: 6px; display: flex; flex-direction: column; gap: 4px;"><div><strong>Name:</strong> <span id="printName">-</span></div><div><strong>Item:</strong> <span id="printItem">-</span></div><div><strong>Rep:</strong> <span id="printRep">-</span></div><div><strong>Date:</strong> <span id="printDate">-</span></div></div>
     </div>
   </div>
-
 <script>
 const PRODUCT_PRICES = { "Sorghum Mill": 150000, "Stove": 25000, "Briquette": 3500, "Activated Charcoal": 5000, "Bitter Leaf Soap": 1500 };
 let salesList = [], raffleList = [], currentTicketObject = null, db = null;
 
-// === PASTE YOUR REAL FIREBASE CONFIG FROM BOSKEL-CARBON HERE ===
+// REAL FIREBASE CONFIG - bnl-product-sales - FIXES VERCEL ERROR AND ₦0 BUG
 const firebaseConfig = {
-  apiKey: "AIzaSyREPLACE_WITH_YOUR_REAL_KEY",
-  authDomain: "YOUR_PROJECT.firebaseapp.com",
-  projectId: "YOUR_PROJECT_ID",
-  storageBucket: "YOUR_PROJECT.appspot.com",
-  messagingSenderId: "123456789",
-  appId: "1:123456789:web:xxxxx"
+  apiKey: "AIzaSyA2aJJ_sLxr06xxGW7jOCDG0Ei0rz5gleE",
+  authDomain: "bnl-product-sales.firebaseapp.com",
+  projectId: "bnl-product-sales",
+  storageBucket: "bnl-product-sales.firebasestorage.app",
+  messagingSenderId: "276285404708",
+  appId: "1:276285404708:web:4102738f467174a0040ab1",
+  measurementId: "G-MZMTMCFPM0"
 };
 
 function updateSyncBadge(text, color){
@@ -171,9 +163,6 @@ function updateSyncBadge(text, color){
 }
 
 try{
-  if(firebaseConfig.apiKey.includes("REPLACE")){
-    throw new Error("REPLACE firebaseConfig with real config from boskel-carbon Firebase project. Go to Firebase Console > Project Settings > SDK Config > Copy");
-  }
   if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
   db = firebase.firestore();
   updateSyncBadge("Connecting to Cloud...", "#fbbf24");
@@ -184,7 +173,6 @@ try{
     refreshDataViews();
   }, err=>{
     updateSyncBadge("Firestore Error: " + err.message, "#ef4444");
-    document.getElementById("salesTableBody").innerHTML = `<tr><td colspan="8" style="color:red;">Error: ${err.message}<br><br>Fix Firestore Rules:<br>allow read, write: if true;</td></tr>`;
   });
 
   db.collection("raffles").orderBy("ticketNum","desc").onSnapshot(snap=>{
@@ -193,8 +181,7 @@ try{
   });
 
 }catch(e){
-  updateSyncBadge("Config Error", "#ef4444");
-  document.getElementById("salesTableBody").innerHTML = `<tr><td colspan="8" style="color:red; font-weight:bold;">${e.message}</td></tr>`;
+  updateSyncBadge("Config Error: "+e.message, "#ef4444");
 }
 
 function switchTab(tabName){
@@ -326,7 +313,6 @@ async function deleteRaffle(id){
   if(!confirm("Delete this ticket from cloud?")) return;
   await db.collection("raffles").doc(id).delete();
 }
-
 function refreshDataViews(){
   const totalRev=salesList.reduce((s,i)=>s+(i.totalAmount||0),0);
   const totalUnits=salesList.reduce((s,i)=>s+(i.qty||0),0);
@@ -349,7 +335,7 @@ function renderCharts(){
 }
 function renderSalesTable(){
   const tbody=document.getElementById("salesTableBody");
-  if(salesList.length===0){ tbody.innerHTML=`<tr><td colspan="8" style="text-align:center;color:#94a3b8;font-style:italic;">No sales yet - will load from cloud, data will not disappear</td></tr>`; return; }
+  if(salesList.length===0){ tbody.innerHTML=`<tr><td colspan="8" style="text-align:center;color:#94a3b8;font-style:italic;">No sales yet - will load from cloud</td></tr>`; return; }
   tbody.innerHTML=salesList.map(s=>`<tr><td>${s.timeStr||'-'}</td><td style="font-weight:bold;">${s.productName}</td><td style="text-align:center;font-weight:bold;">${s.qty}</td><td style="text-align:right;">₦${(s.unitPrice||0).toLocaleString()}</td><td style="text-align:right;font-weight:900;color:#059669;">₦${(s.totalAmount||0).toLocaleString()}</td><td>${s.customerName||'Walk-in'}</td><td>${s.repName}</td><td style="text-align:center;white-space:nowrap;"><button onclick="openEditSale('${s.docId}')" class="btn-edit">Edit</button><button onclick="deleteSale('${s.docId}')" class="btn-danger">Delete</button></td></tr>`).join('');
 }
 function filterSalesTable(){
