@@ -148,8 +148,8 @@ td{padding:10px;border-bottom:1px solid #f1f5f9;color:#334155;font-weight:500}
 <div id="editRaffleBanner" class="edit-mode-banner">EDIT MODE - Editing Ticket: <span id="editRaffleLabel"></span></div>
 <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-top:12px">
 <div><label>Participant Name *</label><input type="text" id="raffleName" placeholder="Enter full name" required></div>
-<div><label>Associated Purchase *</label><select id="raffleNote" required><option value="Sorghum meal 1kg" selected>Sorghum meal 1kg - ₦1500</option></select></div>
-<div><label>Amount (₦) *</label><input type="number" id="raffleAmount" value="1500" readonly style="background:#f8fafc;font-weight:bold;color:#059669"></div>
+<div><label>Associated Purchase *</label><select id="raffleNote" required><option value="Sorghum meal 1kg" selected>Sorghum meal 1kg - ₦1200</option></select></div>
+<div><label>Amount (₦) *</label><input type="number" id="raffleAmount" value="1200" readonly style="background:#f8fafc;font-weight:bold;color:#059669"></div>
 </div>
 <div style="display:flex;gap:8px;margin-top:12px">
 <button id="issueRaffleBtn" class="btn btn-amber" style="flex:1" onclick="handleRaffleSubmit()">Generate Ticket Number</button>
@@ -164,7 +164,7 @@ td{padding:10px;border-bottom:1px solid #f1f5f9;color:#334155;font-weight:500}
 </div>
 </div>
 <div class="card">
-<h3 style="font-size:13px;font-weight:bold">Raffle Log - Sorghum meal 1kg Only (₦150)</h3>
+<h3 style="font-size:13px;font-weight:bold">Raffle Log - Sorghum meal 1kg Only (₦1200)</h3>
 <div class="table-container"><table><thead><tr><th>Ticket No</th><th>Participant</th><th>Item</th><th>Amount (₦)</th><th>Issued By</th><th>Timestamp</th><th>Action</th></tr></thead><tbody id="raffleTableBody"></tbody></table></div>
 </div>
 </div>
@@ -249,7 +249,7 @@ td{padding:10px;border-bottom:1px solid #f1f5f9;color:#334155;font-weight:500}
 </div>
 <div class="card report-card raffle">
 <h3 style="font-size:13px;font-weight:bold;margin-bottom:10px"><i class="fa-solid fa-ticket" style="color:#d97706"></i> Raffle Detail Report</h3>
-<p style="font-size:11px;color:#64748b;margin-bottom:10px">Sorghum meal 1kg = ₦1500 Only</p>
+<p style="font-size:11px;color:#64748b;margin-bottom:10px">Sorghum meal 1kg = ₦1200 Only</p>
 <div style="max-height:200px;overflow-y:auto;font-size:10px" id="report-raffle-preview"></div>
 <div style="display:flex;gap:6px;margin-top:10px">
 <button class="btn btn-amber" style="flex:1" onclick="printRaffleReport()"><i class="fa-solid fa-print"></i> Print Raffle Detail</button>
@@ -297,10 +297,17 @@ let currentUser=JSON.parse(localStorage.getItem('bnl_currentUser')||'null');
 let salesList=[],raffleList=[],usersList=[],auditList=[],currentTicketObject=null;
 let editingUserId=null, editingSaleId=null, editingRaffleId=null;
 const PRODUCT_PRICES={
-"Sorghum meal 1kg":1000,"Sorghum meal 2kg":2000,"Sorghum meal 4kg":4000,
-"Black Intense Activated charcoal soap 300g":500,"Black Intense Activated charcoal soap 100g":1000,
-"Activated charcoal Powder 500g":12000,"Bitterleaves":3000,"Activated charcoal capsules":5000,
-"Kels briquettes":7500,"Ground ogbono mix 150g":4500,"Ground egusi mix 150g":3500
+"Sorghum meal 1kg":1200,
+"Sorghum meal 2kg":2000,
+"Sorghum meal 4kg":4000,
+"Black Intense Activated charcoal soap 300g":3000,
+"Black Intense Activated charcoal soap 100g":1000,
+"Activated charcoal Powder 500g":12000,
+"Bitterleaves":3000,
+"Activated charcoal capsules":5000,
+"Kels briquettes":7500,
+"Ground ogbono mix 150g":4500,
+"Ground egusi mix 150g":3500
 };
 const MODULES=["Dashboard","Sales","Raffle","Reports","Users","Audit"];
 
@@ -471,7 +478,7 @@ async function deleteSale(id){
 async function handleRaffleSubmit(){
  if(!canEdit("Raffle")) return alert("View Only");
  const name=document.getElementById("raffleName").value.trim();if(!name)return alert("Enter participant name");
- const item="Sorghum meal 1kg"; const amount=1500; const nextNum=raffleList.length+1;const code="BNL-"+String(nextNum).padStart(4,'0');
+ const item="Sorghum meal 1kg"; const amount=1200; const nextNum=raffleList.length+1;const code="BNL-"+String(nextNum).padStart(4,'0');
  const raff={ticketNum:nextNum,ticketCode:code,participantName:name,itemNote:item,amount:amount,repName:currentUser.fullName,timestamp:new Date().toISOString(),dateStr:new Date().toLocaleString(),createdBy:currentUser.username};
  await db.collection("raffles").add(raff);currentTicketObject=raff;document.getElementById("resTicketCode").innerText=code;document.getElementById("resParticipantName").innerText=name;document.getElementById("resDetails").innerText=`Item: ${item} | Amount: ₦${amount.toLocaleString()} | Rep: ${currentUser.fullName}`;document.getElementById("ticketResultCard").style.display="block";logAudit("Added","Raffle",`Issued ticket ${code} to ${name} - ${item} ₦${amount}`, "", JSON.stringify(raff));document.getElementById("raffleName").value="";
 }
@@ -484,7 +491,7 @@ function editRaffle(id){
 async function saveEditedRaffle(){
  if(!canEdit("Raffle")) return alert("View Only");
  if(!editingRaffleId) return;const name=document.getElementById("raffleName").value.trim();if(!name) return alert("Enter name");const old=raffleList.find(x=>x.docId===editingRaffleId);
- const updated={participantName:name,itemNote:"Sorghum meal 1kg",amount:1500,updatedAt:new Date().toISOString(),updatedBy:currentUser.username};
+ const updated={participantName:name,itemNote:"Sorghum meal 1kg",amount:1200,updatedAt:new Date().toISOString(),updatedBy:currentUser.username};
  await db.collection("raffles").doc(editingRaffleId).update(updated);logAudit("Edited","Raffle",`Edited ticket ${old.ticketCode} ${old.participantName}=>${name}`,JSON.stringify(old),JSON.stringify(updated));alert("✅ Raffle updated!");resetRaffleForm();
 }
 function cancelEditRaffle(){ resetRaffleForm(); }
@@ -492,12 +499,12 @@ function resetRaffleForm(){editingRaffleId=null;document.getElementById("raffleN
 function renderRaffle(){
  const body=document.getElementById("raffleTableBody");
  const can=canEdit("Raffle");
- body.innerHTML=raffleList.map(r=>`<tr><td style="font-weight:900;color:#d97706">${r.ticketCode}</td><td style="font-weight:bold">${r.participantName}</td><td>Sorghum meal 1kg</td><td style="font-weight:900;color:#059669">₦1,000</td><td>${r.repName}</td><td style="font-size:10px;color:#64748b">${r.dateStr||'-'}</td><td style="white-space:nowrap">${can?`<button class="btn-edit" onclick="editRaffle('${r.docId}')">Edit</button> <button onclick="deleteRaffle('${r.docId}')" class="btn-danger">Delete</button>`:`<span style="color:#94a3b8;font-size:10px">View Only</span>`}</td></tr>`).join('')||"<tr><td colspan='7' style='text-align:center;color:#94a3b8'>No raffles</td></tr>";
+ body.innerHTML=raffleList.map(r=>`<tr><td style="font-weight:900;color:#d97706">${r.ticketCode}</td><td style="font-weight:bold">${r.participantName}</td><td>Sorghum meal 1kg</td><td style="font-weight:900;color:#059669">₦${(r.amount||1200).toLocaleString()}</td><td>${r.repName}</td><td style="font-size:10px;color:#64748b">${r.dateStr||'-'}</td><td style="white-space:nowrap">${can?`<button class="btn-edit" onclick="editRaffle('${r.docId}')">Edit</button> <button onclick="deleteRaffle('${r.docId}')" class="btn-danger">Delete</button>`:`<span style="color:#94a3b8;font-size:10px">View Only</span>`}</td></tr>`).join('')||"<tr><td colspan='7' style='text-align:center;color:#94a3b8'>No raffles</td></tr>";
 }
 async function deleteRaffle(id){
  if(!canEdit("Raffle")) return alert("View Only");
  if(!confirm("Delete ticket?"))return;const old=raffleList.find(x=>x.docId===id);await db.collection("raffles").doc(id).delete();logAudit("Deleted","Raffle",`Deleted ticket ${old.ticketCode}`,JSON.stringify(old),"");if(editingRaffleId===id)resetRaffleForm();}
-function printCurrentTicket(){if(!currentTicketObject)return;document.getElementById("printTicketCode").innerText=currentTicketObject.ticketCode;document.getElementById("printName").innerText=currentTicketObject.participantName;document.getElementById("printItem").innerText="Sorghum meal 1kg";document.getElementById("printAmount").innerText="1,000";document.getElementById("printRep").innerText=currentTicketObject.repName;document.getElementById("printDate").innerText=currentTicketObject.dateStr;document.getElementById("printableTicketArea").style.display="block";document.getElementById("printableReport").style.display="none";window.print();setTimeout(()=>{document.getElementById("printableTicketArea").style.display="none";},500);}
+function printCurrentTicket(){if(!currentTicketObject)return;document.getElementById("printTicketCode").innerText=currentTicketObject.ticketCode;document.getElementById("printName").innerText=currentTicketObject.participantName;document.getElementById("printItem").innerText="Sorghum meal 1kg";document.getElementById("printAmount").innerText="1,200";document.getElementById("printRep").innerText=currentTicketObject.repName;document.getElementById("printDate").innerText=currentTicketObject.dateStr;document.getElementById("printableTicketArea").style.display="block";document.getElementById("printableReport").style.display="none";window.print();setTimeout(()=>{document.getElementById("printableTicketArea").style.display="none";},500);}
 
 function buildAccessGrid(){const grid=document.getElementById("accessGrid");grid.innerHTML=MODULES.map(m=>`<div class="access-item"><input type="checkbox" id="acc_${m}" value="${m}"><label style="margin:0" for="acc_${m}">${m}</label><select id="perm_${m}" style="margin-left:auto;width:90px;padding:4px"><option>Add/Edit</option><option>View Only</option></select></div>`).join('');}
 function setAccessAll(){MODULES.forEach(m=>{document.getElementById("acc_"+m).checked=true;document.getElementById("perm_"+m).value="Add/Edit";});}
@@ -645,7 +652,7 @@ function renderReportPreviews(){
  const salesPrev=document.getElementById("report-sales-preview");
  if(salesPrev){salesPrev.innerHTML=salesList.slice(0,5).map(s=>`<div style="display:flex;justify-content:space-between;padding:3px 0;border-bottom:1px solid #f1f5f9"><span>${s.productName} x${s.qty}</span><span>₦${(s.totalAmount||0).toLocaleString()}</span></div>`).join('')||"No sales yet";}
  const rafflePrev=document.getElementById("report-raffle-preview");
- if(rafflePrev){rafflePrev.innerHTML=raffleList.slice(0,5).map(r=>`<div style="display:flex;justify-content:space-between;padding:3px 0;border-bottom:1px solid #f1f5f9"><span>${r.ticketCode} - ${r.participantName}</span><span>₦1,000</span></div>`).join('')||"No raffles yet";}
+ if(rafflePrev){rafflePrev.innerHTML=raffleList.slice(0,5).map(r=>`<div style="display:flex;justify-content:space-between;padding:3px 0;border-bottom:1px solid #f1f5f9"><span>${r.ticketCode} - ${r.participantName}</span><span>₦1,200</span></div>`).join('')||"No raffles yet";}
 }
 
 function printSalesReport(){
@@ -654,7 +661,7 @@ function printSalesReport(){
  document.getElementById("printableReport").innerHTML=html;document.getElementById("printableReport").style.display="block";document.getElementById("printableTicketArea").style.display="none";window.print();setTimeout(()=>document.getElementById("printableReport").style.display="none",500);logAudit("Viewed","Reports","Printed Sales Detail Report");
 }
 function printRaffleReport(){
- let html=`<div style="font-family:Arial;padding:20px"><h2 style="text-align:center">BNL PRODUCTS - 2026 Product Showcase & End of Year Celebration</h2><h3 style="text-align:center">RAFFLE DETAIL REPORT - Sorghum meal 1kg (₦1500)</h3><p style="text-align:center;font-size:12px">Generated: ${new Date().toLocaleString()} | Total Tickets: ${raffleList.length}</p><hr><table border="1" cellpadding="6" cellspacing="0" style="width:100%;border-collapse:collapse;font-size:11px"><thead><tr style="background:#d97706;color:white"><th>Ticket No</th><th>Participant</th><th>Item</th><th>Amount</th><th>Issued By</th><th>Date</th></tr></thead><tbody>${raffleList.map(r=>`<tr><td>${r.ticketCode}</td><td>${r.participantName}</td><td>${r.itemNote}</td><td>₦${(r.amount||1500).toLocaleString()}</td><td>${r.repName}</td><td>${r.dateStr||''}</td></tr>`).join('')}</tbody></table></div>`;
+ let html=`<div style="font-family:Arial;padding:20px"><h2 style="text-align:center">BNL PRODUCTS - 2026 Product Showcase & End of Year Celebration</h2><h3 style="text-align:center">RAFFLE DETAIL REPORT - Sorghum meal 1kg (₦1200)</h3><p style="text-align:center;font-size:12px">Generated: ${new Date().toLocaleString()} | Total Tickets: ${raffleList.length}</p><hr><table border="1" cellpadding="6" cellspacing="0" style="width:100%;border-collapse:collapse;font-size:11px"><thead><tr style="background:#d97706;color:white"><th>Ticket No</th><th>Participant</th><th>Item</th><th>Amount</th><th>Issued By</th><th>Date</th></tr></thead><tbody>${raffleList.map(r=>`<tr><td>${r.ticketCode}</td><td>${r.participantName}</td><td>${r.itemNote}</td><td>₦${(r.amount||1200).toLocaleString()}</td><td>${r.repName}</td><td>${r.dateStr||''}</td></tr>`).join('')}</tbody></table></div>`;
  document.getElementById("printableReport").innerHTML=html;document.getElementById("printableReport").style.display="block";document.getElementById("printableTicketArea").style.display="none";window.print();setTimeout(()=>document.getElementById("printableReport").style.display="none",500);logAudit("Viewed","Reports","Printed Raffle Detail Report");
 }
 function printAuditReport(){
