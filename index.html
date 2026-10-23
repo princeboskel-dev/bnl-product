@@ -10,7 +10,7 @@
 <style>
 *{box-sizing:border-box;margin:0;padding:0;font-family:'Segoe UI',Tahoma,sans-serif}
 body{background:#f1f5f9;color:#1e293b;padding-bottom:80px}
-header{background:#065f46;color:white;padding:12px 16px;position:sticky;top:0;z-index:30;box-shadow:0 2px 5px rgba(0,0,0,0.1)}
+header{background:#065f46;color:white;padding:12px 16px;position:sticky;top:0;z-index:30}
 .header-container{max-width:900px;margin:0 auto;display:flex;align-items:center;justify-content:space-between}
 .brand-box{display:flex;align-items:center;gap:12px}
 .brand-logo{background:white;color:#065f46;font-weight:900;padding:6px 10px;border-radius:8px;font-size:16px}
@@ -27,6 +27,7 @@ input,select,textarea{width:100%;padding:10px;border:1px solid #cbd5e1;border-ra
 .btn-edit{background:#2563eb;color:white;padding:4px 8px;font-size:10px;border-radius:4px;border:none;cursor:pointer;font-weight:bold}
 .btn-danger{background:#dc2626;color:white;padding:4px 8px;font-size:10px;border-radius:4px;border:none;cursor:pointer;font-weight:bold}
 .btn-dark{background:#0f172a;color:white}.btn-print{background:#7c3aed;color:white}
+.btn:disabled{background:#94a3b8;cursor:not-allowed;opacity:0.6}
 .table-container{overflow-x:auto;margin-top:12px}
 table{width:100%;border-collapse:collapse;text-align:left;font-size:11px}
 th{background:#f8fafc;color:#475569;font-weight:700;padding:10px;border-bottom:1px solid #e2e8f0;text-transform:uppercase;font-size:10px}
@@ -34,6 +35,7 @@ td{padding:10px;border-bottom:1px solid #f1f5f9;color:#334155;font-weight:500}
 .bottom-nav{display:flex;position:fixed;bottom:0;left:0;right:0;background:white;border-top:1px solid #cbd5e1;z-index:40;justify-content:space-around;padding:8px 0}
 .nav-item{background:none;border:none;display:flex;flex-direction:column;align-items:center;color:#64748b;font-size:9px;font-weight:600;cursor:pointer;gap:2px;min-width:50px}
 .nav-item.active{color:#059669;font-weight:bold}.nav-item i{font-size:18px}
+.nav-item.hidden{display:none !important}
 .filter-row{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}.filter-row input,.filter-row select{width:auto;min-width:120px;padding:6px 10px;font-size:11px}
 .access-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px;margin-top:8px}
 .access-item{border:1px solid #e2e8f0;border-radius:8px;padding:8px;display:flex;align-items:center;gap:6px;font-size:11px;background:#f8fafc}
@@ -45,6 +47,8 @@ td{padding:10px;border-bottom:1px solid #f1f5f9;color:#334155;font-weight:500}
 .password-wrapper{position:relative;display:flex;align-items:center}.password-wrapper input{padding-right:40px}
 .eye-icon{position:absolute;right:10px;top:50%;transform:translateY(-50%);cursor:pointer;color:#64748b;background:none;border:none;font-size:16px;padding:4px}
 .tab-content{display:none}.tab-content.active{display:block}
+.access-denied{background:#fee2e2;border:1px solid #fca5a5;color:#991b1b;padding:20px;border-radius:12px;text-align:center;margin-top:20px}
+.view-only-badge{background:#fef3c7;color:#92400e;padding:3px 8px;border-radius:10px;font-size:10px;font-weight:bold;border:1px solid #fbbf24}
 @media print{
   body *{visibility:hidden}
   #printableReport, #printableReport *, #printableTicketArea, #printableTicketArea *{visibility:visible}
@@ -57,7 +61,7 @@ td{padding:10px;border-bottom:1px solid #f1f5f9;color:#334155;font-weight:500}
 
 <div id="loginPage">
 <div class="login-card">
-<div style="text-align:center;margin-bottom:16px"><div class="login-logo">BNL</div><h2 style="font-weight:900;margin-top:10px;color:#065f46">BNL PRODUCTS</h2><p style="font-size:12px;color:#065f46;font-weight:700;margin-top:4px">2026 Product Showcase & End of Year Celebration</p></div>
+<div style="text-align:center;margin-bottom:16px"><div class="login-logo">BNL</div><h2 style="font-weight:900;margin-top:10px;color:#065f46">BNL PRODUCTS</h2><p style="font-size:12px;color:#065f46;font-weight:700;margin-top:4px">2026 Product Showcase & End of Year Celebration</p><p id="loginRoleHint" style="font-size:10px;color:#64748b;margin-top:6px">Access based on granted permissions</p></div>
 <div id="loginError" style="color:#dc2626;font-size:11px;margin-bottom:10px;display:none;background:#fee2e2;padding:8px;border-radius:6px"></div>
 <label>Username *</label><input id="loginUser" placeholder="Enter username">
 <label>Password *</label>
@@ -73,8 +77,9 @@ td{padding:10px;border-bottom:1px solid #f1f5f9;color:#334155;font-weight:500}
 <header>
 <div class="header-container">
 <div class="brand-box"><div class="brand-logo">BNL</div><div><h1 style="font-size:14px;font-weight:900">BNL PRODUCTS</h1><p style="font-size:10px;color:#a7f3d0;font-weight:700">2026 Product Showcase & End of Year Celebration</p></div></div>
-<div style="display:flex;gap:8px;align-items:center">
+<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
 <span id="userBadge" style="background:white;color:#065f46;padding:4px 10px;border-radius:20px;font-size:10px;font-weight:bold"></span>
+<span id="accessBadge" style="background:#fbbf24;color:#0f172a;padding:4px 8px;border-radius:20px;font-size:9px;font-weight:bold"></span>
 <button class="btn btn-red btn-sm" onclick="logout()">Logout</button>
 </div>
 </div>
@@ -84,7 +89,7 @@ td{padding:10px;border-bottom:1px solid #f1f5f9;color:#334155;font-weight:500}
 <div id="tab-home" class="tab-content active">
 <div class="card" style="background:#0a5c36;color:white;border:none;text-align:center;padding:16px;border-radius:16px">
 <h2 style="font-size:18px;font-weight:800">2026 Product Showcase & End of Year Celebration</h2>
-<p style="font-size:11px;color:#a7f3d0;margin-top:4px">Detailed Reports Available - Print from Sales, Raffle & Audit</p>
+<p id="userAccessInfo" style="font-size:11px;color:#a7f3d0;margin-top:6px"></p>
 </div>
 <div class="grid-3">
 <div class="kpi-card"><div class="kpi-title">Total Revenue</div><div class="kpi-value" id="kpi-revenue">₦0</div><div class="kpi-sub" id="kpi-tx">0 transactions</div></div>
@@ -92,12 +97,16 @@ td{padding:10px;border-bottom:1px solid #f1f5f9;color:#334155;font-weight:500}
 <div class="kpi-card"><div class="kpi-title">Raffle Tickets</div><div class="kpi-value" id="kpi-raffle">0</div><div class="kpi-sub" id="kpi-latest">Latest: None</div></div>
 </div>
 <div class="card">
+<h3 style="font-size:13px;font-weight:bold;margin-bottom:10px">Your Access Level</h3>
+<div id="myPermissions" style="display:flex;gap:6px;flex-wrap:wrap"></div>
+</div>
+<div class="card">
 <h3 style="font-size:13px;font-weight:bold;margin-bottom:10px">Quick Print Reports</h3>
 <div style="display:flex;gap:8px;flex-wrap:wrap">
-<button class="btn btn-print btn-sm" onclick="printHomeReport()"><i class="fa-solid fa-print"></i> Print Summary Report</button>
-<button class="btn btn-dark btn-sm" onclick="switchTab('sales')"><i class="fa-solid fa-file-invoice"></i> Sales Detail Report</button>
-<button class="btn btn-amber btn-sm" onclick="switchTab('raffle')"><i class="fa-solid fa-ticket"></i> Raffle Detail Report</button>
-<button class="btn btn-sm" onclick="switchTab('audit')"><i class="fa-solid fa-clipboard-list"></i> Audit Detail Report</button>
+<button id="btnPrintHome" class="btn btn-print btn-sm" onclick="printHomeReport()"><i class="fa-solid fa-print"></i> Print Summary</button>
+<button id="btnSalesReport" class="btn btn-dark btn-sm" onclick="switchTab('sales')"><i class="fa-solid fa-file-invoice"></i> Sales Report</button>
+<button id="btnRaffleReport" class="btn btn-amber btn-sm" onclick="switchTab('raffle')"><i class="fa-solid fa-ticket"></i> Raffle Report</button>
+<button id="btnAuditReport" class="btn btn-sm" onclick="switchTab('audit')"><i class="fa-solid fa-clipboard-list"></i> Audit Report</button>
 </div>
 </div>
 <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px">
@@ -107,10 +116,12 @@ td{padding:10px;border-bottom:1px solid #f1f5f9;color:#334155;font-weight:500}
 </div>
 
 <div id="tab-sales" class="tab-content">
+<div id="salesAccessDenied" class="access-denied" style="display:none"><h3>🚫 Access Denied</h3><p>You don't have access to Sales module. Contact Admin.</p></div>
+<div id="salesContent">
 <div class="card">
 <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">
-<h2 style="font-size:14px;font-weight:bold">Record New Sale</h2>
-<button class="btn btn-print btn-sm" onclick="printSalesReport()"><i class="fa-solid fa-print"></i> Print Sales Report</button>
+<h2 style="font-size:14px;font-weight:bold">Record New Sale <span id="salesPermBadge"></span></h2>
+<button id="btnPrintSales" class="btn btn-print btn-sm" onclick="printSalesReport()"><i class="fa-solid fa-print"></i> Print Sales Report</button>
 </div>
 <div id="editSaleBanner" class="edit-mode-banner">EDIT MODE - Editing Sale: <span id="editSaleLabel"></span></div>
 <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-top:10px">
@@ -141,11 +152,14 @@ td{padding:10px;border-bottom:1px solid #f1f5f9;color:#334155;font-weight:500}
 <div class="table-container"><table><thead><tr><th>Time</th><th>Product</th><th>Qty</th><th>Total</th><th>Customer</th><th>Rep</th><th>Action</th></tr></thead><tbody id="salesTableBody"></tbody></table></div>
 </div>
 </div>
+</div>
 
 <div id="tab-raffle" class="tab-content">
+<div id="raffleAccessDenied" class="access-denied" style="display:none"><h3>🚫 Access Denied</h3><p>You don't have access to Raffle module. Contact Admin.</p></div>
+<div id="raffleContent">
 <div class="card">
 <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">
-<h2 style="font-size:14px;font-weight:bold">Issue Raffle Ticket</h2>
+<h2 style="font-size:14px;font-weight:bold">Issue Raffle Ticket <span id="rafflePermBadge"></span></h2>
 <button class="btn btn-print btn-sm" onclick="printRaffleReport()"><i class="fa-solid fa-print"></i> Print Raffle Report</button>
 </div>
 <div style="background:#dcfce7;border:1px solid #16a34a;color:#065f46;padding:8px 12px;border-radius:8px;font-size:11px;font-weight:bold;margin:10px 0">RAFFLE ITEM: Sorghum meal 1kg = ₦1000 (Fixed)</div>
@@ -172,10 +186,13 @@ td{padding:10px;border-bottom:1px solid #f1f5f9;color:#334155;font-weight:500}
 <div class="table-container"><table><thead><tr><th>Ticket No</th><th>Participant</th><th>Item</th><th>Amount (₦)</th><th>Issued By</th><th>Timestamp</th><th>Action</th></tr></thead><tbody id="raffleTableBody"></tbody></table></div>
 </div>
 </div>
+</div>
 
 <div id="tab-users" class="tab-content">
+<div id="usersAccessDenied" class="access-denied" style="display:none"><h3>🚫 Access Denied</h3><p>You don't have access to Users Management. Contact Admin.</p></div>
+<div id="usersContent">
 <div class="card">
-<h2 style="font-size:14px;font-weight:bold">Users Management</h2>
+<h2 style="font-size:14px;font-weight:bold">Users Management <span id="usersPermBadge"></span></h2>
 <div id="editModeBanner" class="edit-mode-banner">EDIT MODE - Editing: <span id="editUserLabel"></span></div>
 <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-top:12px">
 <div><label>User ID</label><input id="uId" readonly></div>
@@ -185,8 +202,8 @@ td{padding:10px;border-bottom:1px solid #f1f5f9;color:#334155;font-weight:500}
 <div><label>Role *</label><select id="uRole"><option value="">-- Select --</option><option>Admin</option><option>Sales Officer</option><option>Viewer</option></select></div>
 <div><label>Status *</label><select id="uStatus"><option>Active</option><option>Inactive</option></select></div>
 </div>
-<label style="margin-top:12px">Access Level *</label>
-<div style="display:flex;gap:6px;flex-wrap:wrap;margin:6px 0"><button class="btn btn-sm" onclick="setAccessAll()">Select All</button><button class="btn btn-sm" style="background:#cbd5e1;color:#334155" onclick="clearAccess()">Clear All</button></div>
+<label style="margin-top:12px">Access Level * (Check modules this user can access)</label>
+<div style="display:flex;gap:6px;flex-wrap:wrap;margin:6px 0"><button class="btn btn-sm" onclick="setAccessAll()">Select All - Add/Edit</button><button class="btn btn-sm" style="background:#cbd5e1;color:#334155" onclick="clearAccess()">Clear All</button><button class="btn btn-sm" style="background:#e2e8f0;color:#334155" onclick="setViewOnly()">All View Only</button></div>
 <div class="access-grid" id="accessGrid"></div>
 <label>Notes</label><textarea id="uNotes" rows="2"></textarea>
 <div style="display:flex;gap:8px;margin-top:12px">
@@ -197,15 +214,18 @@ td{padding:10px;border-bottom:1px solid #f1f5f9;color:#334155;font-weight:500}
 </div>
 <div class="card"><div class="table-container"><table><thead><tr><th>User ID</th><th>Full Name</th><th>Username</th><th>Password</th><th>Role</th><th>Access</th><th>Status</th><th>Action</th></tr></thead><tbody id="usersTableBody"></tbody></table></div></div>
 </div>
+</div>
 
 <div id="tab-audit" class="tab-content">
+<div id="auditAccessDenied" class="access-denied" style="display:none"><h3>🚫 Access Denied</h3><p>You don't have access to Audit Trail. Contact Admin.</p></div>
+<div id="auditContent">
 <div class="card">
 <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">
-<h2 style="font-size:14px;font-weight:bold">Audit Trail - Detail Report</h2>
+<h2 style="font-size:14px;font-weight:bold">Audit Trail - Detail Report <span id="auditPermBadge"></span></h2>
 <div style="display:flex;gap:6px;flex-wrap:wrap">
 <button class="btn btn-print btn-sm" onclick="printAuditReport()"><i class="fa-solid fa-print"></i> Print Detail Report</button>
 <button class="btn btn-dark btn-sm" onclick="exportAuditCSV()">Export CSV</button>
-<button class="btn btn-red btn-sm" onclick="clearAuditTrail()">Clear All</button>
+<button id="btnClearAudit" class="btn btn-red btn-sm" onclick="clearAuditTrail()">Clear All</button>
 </div>
 </div>
 <div class="filter-row" style="margin-top:12px">
@@ -217,18 +237,18 @@ td{padding:10px;border-bottom:1px solid #f1f5f9;color:#334155;font-weight:500}
 <div class="table-container"><table><thead><tr><th>Timestamp</th><th>Date</th><th>Time</th><th>User</th><th>Action</th><th>Module</th><th>Details</th><th>IP</th><th>Action</th></tr></thead><tbody id="auditTableBody"></tbody></table></div>
 </div>
 </div>
+</div>
 
 </main>
 
 <nav class="bottom-nav">
-<button onclick="switchTab('home')" id="mobile-tab-home" class="nav-item active">Home</button>
-<button onclick="switchTab('sales')" id="mobile-tab-sales" class="nav-item">Sales</button>
-<button onclick="switchTab('raffle')" id="mobile-tab-raffle" class="nav-item">Raffle</button>
-<button onclick="switchTab('users')" id="mobile-tab-users" class="nav-item">Users</button>
-<button onclick="switchTab('audit')" id="mobile-tab-audit" class="nav-item">Audit</button>
+<button onclick="switchTab('home')" id="mobile-tab-home" class="nav-item"><i class="fa-solid fa-chart-pie"></i> Dashboard</button>
+<button onclick="switchTab('sales')" id="mobile-tab-sales" class="nav-item"><i class="fa-solid fa-cart-shopping"></i> Sales</button>
+<button onclick="switchTab('raffle')" id="mobile-tab-raffle" class="nav-item"><i class="fa-solid fa-ticket"></i> Raffle</button>
+<button onclick="switchTab('users')" id="mobile-tab-users" class="nav-item"><i class="fa-solid fa-users"></i> Users</button>
+<button onclick="switchTab('audit')" id="mobile-tab-audit" class="nav-item"><i class="fa-solid fa-clipboard-list"></i> Audit</button>
 </nav>
 
-<!-- PRINT AREAS -->
 <div id="printableTicketArea" style="display:none;padding:20px;background:white;color:black">
 <div style="border:2px dashed black;padding:20px;text-align:center;max-width:280px;margin:0 auto">
 <h2 style="font-weight:900;font-size:20px">BNL PRODUCTS</h2><p style="font-size:10px;font-weight:800">2026 Product Showcase & End of Year Celebration</p><p style="font-size:10px;text-transform:uppercase;border-bottom:1px solid black;padding-bottom:6px;font-weight:bold">Official Raffle Entry Ticket</p>
@@ -236,7 +256,6 @@ td{padding:10px;border-bottom:1px solid #f1f5f9;color:#334155;font-weight:500}
 <div style="text-align:left;font-size:11px;border-top:1px solid black;padding-top:6px;display:flex;flex-direction:column;gap:4px"><div><strong>Name:</strong> <span id="printName">-</span></div><div><strong>Item:</strong> <span id="printItem">-</span></div><div><strong>Amount:</strong> ₦<span id="printAmount">-</span></div><div><strong>Rep:</strong> <span id="printRep">-</span></div><div><strong>Date:</strong> <span id="printDate">-</span></div></div>
 </div>
 </div>
-
 <div id="printableReport" style="display:none"></div>
 </div>
 
@@ -262,6 +281,96 @@ const PRODUCT_PRICES={
 "Kels briquettes":7500,"Ground ogbono mix 150g":4500,"Ground egusi mix 150g":3500
 };
 const MODULES=["Dashboard","Sales","Raffle","Users","Audit","Reports"];
+
+// ===== ACCESS CONTROL CORE =====
+function hasModuleAccess(mod){
+ if(!currentUser) return false;
+ if(currentUser.role==="Admin") return true;
+ const access=currentUser.access||{};
+ return !!access[mod];
+}
+function canEdit(mod){
+ if(!currentUser) return false;
+ if(currentUser.role==="Admin") return true;
+ const access=currentUser.access||{};
+ return access[mod]==="Add/Edit";
+}
+function getAccessBadgeText(mod){
+ if(!currentUser) return "";
+ if(currentUser.role==="Admin") return "";
+ const access=currentUser.access||{};
+ if(!access[mod]) return "";
+ return access[mod]==="View Only" ? '<span class="view-only-badge">View Only</span>' : '<span style="background:#dcfce7;color:#065f46;padding:3px 8px;border-radius:10px;font-size:10px;font-weight:bold;border:1px solid #16a34a">Add/Edit</span>';
+}
+
+function applyAccessControl(){
+ if(!currentUser) return;
+ const isAdmin=currentUser.role==="Admin";
+ document.getElementById("accessBadge").innerText=isAdmin?"Admin - Full Access":`Role: ${currentUser.role}`;
+ document.getElementById("userAccessInfo").innerText=isAdmin?"Admin - You have full access to all modules":"Your access: "+Object.keys(currentUser.access||{}).join(", ")||"No modules assigned";
+ 
+ // Show permissions on home
+ const permDiv=document.getElementById("myPermissions");
+ if(isAdmin){
+   permDiv.innerHTML=MODULES.map(m=>`<span style="background:#065f46;color:white;padding:4px 10px;border-radius:20px;font-size:10px;font-weight:bold">${m}: Add/Edit</span>`).join('');
+ } else {
+   permDiv.innerHTML=Object.keys(currentUser.access||{}).map(m=>`<span style="background:${currentUser.access[m]==='Add/Edit'?'#dcfce7':'#fef3c7'};color:${currentUser.access[m]==='Add/Edit'?'#065f46':'#92400e'};padding:4px 10px;border-radius:20px;font-size:10px;font-weight:bold;border:1px solid ${currentUser.access[m]==='Add/Edit'?'#16a34a':'#fbbf24'}">${m}: ${currentUser.access[m]}</span>`).join('') || '<span style="color:#dc2626">No access granted - Contact Admin</span>';
+ }
+
+ // Hide/show bottom nav
+ const navMap={"Dashboard":"mobile-tab-home","Sales":"mobile-tab-sales","Raffle":"mobile-tab-raffle","Users":"mobile-tab-users","Audit":"mobile-tab-audit"};
+ Object.keys(navMap).forEach(mod=>{
+   const el=document.getElementById(navMap[mod]);
+   if(!el) return;
+   if(!hasModuleAccess(mod)){
+     el.classList.add("hidden");
+   } else {
+     el.classList.remove("hidden");
+   }
+ });
+
+ // Update badges in each tab
+ document.getElementById("salesPermBadge").innerHTML=getAccessBadgeText("Sales");
+ document.getElementById("rafflePermBadge").innerHTML=getAccessBadgeText("Raffle");
+ document.getElementById("usersPermBadge").innerHTML=getAccessBadgeText("Users");
+ document.getElementById("auditPermBadge").innerHTML=getAccessBadgeText("Audit");
+
+ // Apply content visibility
+ checkTabAccess("Sales","salesContent","salesAccessDenied");
+ checkTabAccess("Raffle","raffleContent","raffleAccessDenied");
+ checkTabAccess("Users","usersContent","usersAccessDenied");
+ checkTabAccess("Audit","auditContent","auditAccessDenied");
+
+ // Apply edit restrictions
+ if(!canEdit("Sales")){
+   document.getElementById("issueSaleBtn").disabled=true;
+   document.getElementById("issueSaleBtn").innerText="View Only - No Edit";
+   document.getElementById("saveSaleBtn").style.display="none";
+ } else {
+   document.getElementById("issueSaleBtn").disabled=false;
+   document.getElementById("issueSaleBtn").innerHTML="Submit Transaction";
+ }
+ if(!canEdit("Raffle")){
+   document.getElementById("issueRaffleBtn").disabled=true;
+   document.getElementById("issueRaffleBtn").innerText="View Only - No Edit";
+ } else {
+   document.getElementById("issueRaffleBtn").disabled=false;
+   document.getElementById("issueRaffleBtn").innerText="Generate Ticket Number";
+ }
+ if(!canEdit("Audit")){
+   const btnClear=document.getElementById("btnClearAudit");
+   if(btnClear) btnClear.style.display="none";
+ }
+}
+
+function checkTabAccess(mod,contentId,deniedId){
+ const has=hasModuleAccess(mod);
+ const content=document.getElementById(contentId);
+ const denied=document.getElementById(deniedId);
+ if(content) content.style.display=has?"block":"none";
+ if(denied) denied.style.display=has?"none":"block";
+}
+
 function togglePassword(inputId, eyeId){
  const input=document.getElementById(inputId); const eye=document.getElementById(eyeId);
  if(input.type==="password"){input.type="text";eye.classList.remove("fa-eye");eye.classList.add("fa-eye-slash");}
@@ -283,12 +392,38 @@ function handleLogin(){
  let found=usersList.find(x=>x.username===u&&x.password===p);
  if((u==="admin"&&p==="admin")&&usersList.length===0){currentUser={username:"admin",fullName:"System Administrator",role:"Admin",access:{Dashboard:"Add/Edit",Sales:"Add/Edit",Raffle:"Add/Edit",Users:"Add/Edit",Audit:"Add/Edit",Reports:"Add/Edit"}};saveSession();logAudit("Login","Authentication","admin logged in");showApp();return;}
  if(!found){err.style.display="block";err.innerText="Invalid credentials";return;}
- currentUser=found;saveSession();logAudit("Login","Authentication",`${found.username} logged in`);showApp();
+ if(found.status==="Inactive"){err.style.display="block";err.innerText="User inactive - Contact Admin";return;}
+ currentUser=found;saveSession();logAudit("Login","Authentication",`${found.username} logged in as ${found.role} with access: ${Object.keys(found.access||{}).join(',')}`);showApp();
 }
 function saveSession(){localStorage.setItem('bnl_currentUser',JSON.stringify(currentUser));}
-function showApp(){document.getElementById("loginPage").style.display="none";document.getElementById("app").style.display="block";document.getElementById("userBadge").innerText=currentUser.fullName+" ("+currentUser.role+")";switchTab('home');}
+function showApp(){
+ document.getElementById("loginPage").style.display="none";
+ document.getElementById("app").style.display="block";
+ document.getElementById("userBadge").innerText=currentUser.fullName+" ("+currentUser.role+")";
+ applyAccessControl();
+ // Switch to first allowed tab
+ if(hasModuleAccess("Dashboard")) switchTab('home');
+ else if(hasModuleAccess("Sales")) switchTab('sales');
+ else if(hasModuleAccess("Raffle")) switchTab('raffle');
+ else if(hasModuleAccess("Users")) switchTab('users');
+ else if(hasModuleAccess("Audit")) switchTab('audit');
+ else switchTab('home');
+}
 function logout(){logAudit("Logout","Authentication",`${currentUser.username} logged out`);localStorage.removeItem('bnl_currentUser');setTimeout(()=>location.reload(),500);}
-function switchTab(name){document.querySelectorAll('.tab-content').forEach(el=>el.classList.remove('active'));document.getElementById('tab-'+name).classList.add('active');document.querySelectorAll('.nav-item').forEach(el=>el.classList.remove('active'));const btn=document.getElementById('mobile-tab-'+name); if(btn)btn.classList.add('active');}
+
+function switchTab(name){
+ const tabToModule={"home":"Dashboard","sales":"Sales","raffle":"Raffle","users":"Users","audit":"Audit"};
+ const requiredMod=tabToModule[name];
+ if(requiredMod && !hasModuleAccess(requiredMod)){
+   alert(`🚫 Access Denied: You don't have access to ${requiredMod} module.\nYour access: ${Object.keys(currentUser.access||{}).join(', ')||'None'}\nContact Admin.`);
+   return;
+ }
+ document.querySelectorAll('.tab-content').forEach(el=>el.classList.remove('active'));
+ const target=document.getElementById('tab-'+name);
+ if(target) target.classList.add('active');
+ document.querySelectorAll('.nav-item').forEach(el=>el.classList.remove('active'));
+ const btn=document.getElementById('mobile-tab-'+name); if(btn)btn.classList.add('active');
+}
 async function logAudit(action,moduleName,details,oldVal="",newVal=""){
  if(!currentUser)return;
  const entry={timestamp:new Date().toISOString(),dateStr:new Date().toISOString().split('T')[0],timeStr:new Date().toLocaleTimeString(),user:currentUser.username,action:action,module:moduleName,details:details,oldValue:oldVal,newValue:newVal,ip:"web-"+Math.floor(Math.random()*10000),createdAt:firebase.firestore.FieldValue.serverTimestamp()};
@@ -297,6 +432,7 @@ async function logAudit(action,moduleName,details,oldVal="",newVal=""){
 function onProductChange(){const v=document.getElementById("saleProduct").value;const box=document.getElementById("customProductBox");if(v==="Other / Custom Product"){box.style.display="block"}else{box.style.display="none";if(PRODUCT_PRICES[v]){document.getElementById("salePrice").value=PRODUCT_PRICES[v];}}calculateTotal();}
 function calculateTotal(){const p=parseFloat(document.getElementById("salePrice").value)||0;const q=parseInt(document.getElementById("saleQty").value)||1;document.getElementById("saleTotal").value="₦"+(p*q).toLocaleString('en-US',{minimumFractionDigits:2});}
 async function handleSaleSubmit(){
+ if(!canEdit("Sales")) return alert("🚫 View Only access - You cannot add sales. Contact Admin for Add/Edit permission.");
  const prodSel=document.getElementById("saleProduct").value;if(!prodSel)return alert("Select product");
  const prodName=prodSel==="Other / Custom Product"?document.getElementById("customProductName").value:prodSel;
  const price=parseFloat(document.getElementById("salePrice").value)||0;const qty=parseInt(document.getElementById("saleQty").value)||1;
@@ -305,6 +441,7 @@ async function handleSaleSubmit(){
  await db.collection("sales").add(sale);logAudit("Added","Sales",`Sale ${prodName} x${qty} ₦${price*qty} by ${currentUser.username}`,"",JSON.stringify(sale));alert("✅ Saved");resetSaleForm();
 }
 function editSale(id){
+ if(!canEdit("Sales")) return alert("🚫 View Only - You cannot edit sales");
  const s=salesList.find(x=>x.docId===id); if(!s) return; editingSaleId=id;
  const knownOptions = Object.keys(PRODUCT_PRICES);
  document.getElementById("saleProduct").value=knownOptions.includes(s.productName)?s.productName:"Other / Custom Product";
@@ -314,13 +451,14 @@ function editSale(id){
  document.getElementById("issueSaleBtn").style.display="none";document.getElementById("saveSaleBtn").style.display="inline-flex";document.getElementById("cancelSaleBtn").style.display="inline-flex";switchTab('sales');
 }
 async function saveEditedSale(){
+ if(!canEdit("Sales")) return alert("View Only - Cannot edit");
  if(!editingSaleId) return;const prodSel=document.getElementById("saleProduct").value;const prodName=prodSel==="Other / Custom Product"?document.getElementById("customProductName").value:prodSel;
  const price=parseFloat(document.getElementById("salePrice").value)||0;const qty=parseInt(document.getElementById("saleQty").value)||1;const old=salesList.find(x=>x.docId===editingSaleId);
  const updated={productName:prodName,unitPrice:price,qty:qty,totalAmount:price*qty,customerName:document.getElementById("saleCustomer").value||"Walk-in",updatedAt:new Date().toISOString(),updatedBy:currentUser.username};
  await db.collection("sales").doc(editingSaleId).update(updated);logAudit("Edited","Sales",`Edited sale ${old.productName}=>${prodName} ₦${old.totalAmount}=>₦${price*qty}`,JSON.stringify(old),JSON.stringify(updated));alert("✅ Sale updated!");resetSaleForm();
 }
 function cancelEditSale(){ resetSaleForm(); }
-function resetSaleForm(){editingSaleId=null;document.getElementById("saleProduct").value="";document.getElementById("customProductBox").style.display="none";document.getElementById("customProductName").value="";document.getElementById("salePrice").value="";document.getElementById("saleQty").value="1";document.getElementById("saleTotal").value="₦0.00";document.getElementById("saleCustomer").value="";document.getElementById("editSaleBanner").classList.remove("active");document.getElementById("issueSaleBtn").style.display="inline-flex";document.getElementById("saveSaleBtn").style.display="none";document.getElementById("cancelSaleBtn").style.display="none";}
+function resetSaleForm(){editingSaleId=null;document.getElementById("saleProduct").value="";document.getElementById("customProductBox").style.display="none";document.getElementById("customProductName").value="";document.getElementById("salePrice").value="";document.getElementById("saleQty").value="1";document.getElementById("saleTotal").value="₦0.00";document.getElementById("saleCustomer").value="";document.getElementById("editSaleBanner").classList.remove("active");document.getElementById("issueSaleBtn").style.display="inline-flex";document.getElementById("saveSaleBtn").style.display="none";document.getElementById("cancelSaleBtn").style.display="none";applyAccessControl();}
 function refreshKPIs(){
  const total=salesList.reduce((s,i)=>s+(i.totalAmount||0),0);
  document.getElementById("kpi-revenue").innerText="₦"+total.toLocaleString();document.getElementById("kpi-tx").innerText=salesList.length+" transactions";
@@ -330,52 +468,77 @@ function refreshKPIs(){
  let unitMap={};salesList.forEach(s=>{if(!unitMap[s.productName])unitMap[s.productName]=0;unitMap[s.productName]+=s.qty;});
  const maxU=Math.max(...Object.values(unitMap),1);document.getElementById("chart-units").innerHTML=Object.keys(unitMap).map(k=>`<div style="margin-bottom:8px"><div style="display:flex;justify-content:space-between;font-size:11px;font-weight:bold;margin-bottom:4px"><span>${k}</span><span style="color:#2563eb">${unitMap[k]} units</span></div><div style="background:#f1f5f9;border-radius:99px;height:12px;overflow:hidden"><div style="background:#2563eb;height:100%;width:${Math.min(100,(unitMap[k]/maxU)*100)}%"></div></div></div>`).join('')||"<div style='font-size:11px;color:#94a3b8'>No sales yet</div>";
 }
-function renderSales(){const body=document.getElementById("salesTableBody");body.innerHTML=salesList.map(s=>`<tr><td>${s.timeStr||'-'}</td><td style="font-weight:bold">${s.productName}</td><td style="text-align:center">${s.qty}</td><td style="font-weight:900;color:#059669">₦${(s.totalAmount||0).toLocaleString()}</td><td>${s.customerName}</td><td>${s.repName}</td><td style="white-space:nowrap"><button class="btn-edit" onclick="editSale('${s.docId}')">Edit</button> <button onclick="deleteSale('${s.docId}')" class="btn-danger">Delete</button></td></tr>`).join('')||"<tr><td colspan='7' style='text-align:center;color:#94a3b8'>No sales yet</td></tr>";}
-async function deleteSale(id){if(!confirm("Delete this sale?"))return;const old=salesList.find(x=>x.docId===id);await db.collection("sales").doc(id).delete();logAudit("Deleted","Sales",`Deleted sale ${old.productName} ₦${old.totalAmount}`,JSON.stringify(old),"");if(editingSaleId===id)resetSaleForm();}
+function renderSales(){
+ const body=document.getElementById("salesTableBody");
+ const can=canEdit("Sales");
+ body.innerHTML=salesList.map(s=>`<tr><td>${s.timeStr||'-'}</td><td style="font-weight:bold">${s.productName}</td><td style="text-align:center">${s.qty}</td><td style="font-weight:900;color:#059669">₦${(s.totalAmount||0).toLocaleString()}</td><td>${s.customerName}</td><td>${s.repName}</td><td style="white-space:nowrap">${can?`<button class="btn-edit" onclick="editSale('${s.docId}')">Edit</button> <button onclick="deleteSale('${s.docId}')" class="btn-danger">Delete</button>`:`<span style="color:#94a3b8;font-size:10px">View Only</span>`}</td></tr>`).join('')||"<tr><td colspan='7' style='text-align:center;color:#94a3b8'>No sales yet</td></tr>";
+}
+async function deleteSale(id){
+ if(!canEdit("Sales")) return alert("View Only - Cannot delete");
+ if(!confirm("Delete this sale?"))return;const old=salesList.find(x=>x.docId===id);await db.collection("sales").doc(id).delete();logAudit("Deleted","Sales",`Deleted sale ${old.productName} ₦${old.totalAmount}`,JSON.stringify(old),"");if(editingSaleId===id)resetSaleForm();}
 
-// RAFFLE FIXED
 async function handleRaffleSubmit(){
+ if(!canEdit("Raffle")) return alert("View Only - Cannot issue tickets");
  const name=document.getElementById("raffleName").value.trim();if(!name)return alert("Enter participant name");
  const item="Sorghum meal 1kg"; const amount=1000; const nextNum=raffleList.length+1;const code="BNL-"+String(nextNum).padStart(4,'0');
  const raff={ticketNum:nextNum,ticketCode:code,participantName:name,itemNote:item,amount:amount,repName:currentUser.fullName,timestamp:new Date().toISOString(),dateStr:new Date().toLocaleString(),createdBy:currentUser.username};
  await db.collection("raffles").add(raff);currentTicketObject=raff;document.getElementById("resTicketCode").innerText=code;document.getElementById("resParticipantName").innerText=name;document.getElementById("resDetails").innerText=`Item: ${item} | Amount: ₦${amount.toLocaleString()} | Rep: ${currentUser.fullName}`;document.getElementById("ticketResultCard").style.display="block";logAudit("Added","Raffle",`Issued ticket ${code} to ${name} - ${item} ₦${amount}`, "", JSON.stringify(raff));document.getElementById("raffleName").value="";
 }
 function editRaffle(id){
+ if(!canEdit("Raffle")) return alert("View Only - Cannot edit");
  const r=raffleList.find(x=>x.docId===id); if(!r) return;editingRaffleId=id;document.getElementById("raffleName").value=r.participantName;
  document.getElementById("editRaffleBanner").classList.add("active");document.getElementById("editRaffleLabel").innerText=r.ticketCode+" - "+r.participantName;
  document.getElementById("issueRaffleBtn").style.display="none";document.getElementById("saveRaffleBtn").style.display="inline-flex";document.getElementById("cancelRaffleBtn").style.display="inline-flex";switchTab('raffle');
 }
 async function saveEditedRaffle(){
+ if(!canEdit("Raffle")) return alert("View Only");
  if(!editingRaffleId) return;const name=document.getElementById("raffleName").value.trim();if(!name) return alert("Enter name");const old=raffleList.find(x=>x.docId===editingRaffleId);
  const updated={participantName:name,itemNote:"Sorghum meal 1kg",amount:1000,updatedAt:new Date().toISOString(),updatedBy:currentUser.username};
  await db.collection("raffles").doc(editingRaffleId).update(updated);logAudit("Edited","Raffle",`Edited ticket ${old.ticketCode} ${old.participantName}=>${name}`,JSON.stringify(old),JSON.stringify(updated));alert("✅ Raffle updated!");resetRaffleForm();
 }
 function cancelEditRaffle(){ resetRaffleForm(); }
-function resetRaffleForm(){editingRaffleId=null;document.getElementById("raffleName").value="";document.getElementById("editRaffleBanner").classList.remove("active");document.getElementById("issueRaffleBtn").style.display="inline-flex";document.getElementById("saveRaffleBtn").style.display="none";document.getElementById("cancelRaffleBtn").style.display="none";}
-function renderRaffle(){const body=document.getElementById("raffleTableBody");body.innerHTML=raffleList.map(r=>`<tr><td style="font-weight:900;color:#d97706">${r.ticketCode}</td><td style="font-weight:bold">${r.participantName}</td><td>Sorghum meal 1kg</td><td style="font-weight:900;color:#059669">₦1,000</td><td>${r.repName}</td><td style="font-size:10px;color:#64748b">${r.dateStr||'-'}</td><td style="white-space:nowrap"><button class="btn-edit" onclick="editRaffle('${r.docId}')">Edit</button> <button onclick="deleteRaffle('${r.docId}')" class="btn-danger">Delete</button></td></tr>`).join('')||"<tr><td colspan='7' style='text-align:center;color:#94a3b8'>No raffles</td></tr>";}
-async function deleteRaffle(id){if(!confirm("Delete ticket?"))return;const old=raffleList.find(x=>x.docId===id);await db.collection("raffles").doc(id).delete();logAudit("Deleted","Raffle",`Deleted ticket ${old.ticketCode}`,JSON.stringify(old),"");if(editingRaffleId===id)resetRaffleForm();}
+function resetRaffleForm(){editingRaffleId=null;document.getElementById("raffleName").value="";document.getElementById("editRaffleBanner").classList.remove("active");document.getElementById("issueRaffleBtn").style.display="inline-flex";document.getElementById("saveRaffleBtn").style.display="none";document.getElementById("cancelRaffleBtn").style.display="none";applyAccessControl();}
+function renderRaffle(){
+ const body=document.getElementById("raffleTableBody");
+ const can=canEdit("Raffle");
+ body.innerHTML=raffleList.map(r=>`<tr><td style="font-weight:900;color:#d97706">${r.ticketCode}</td><td style="font-weight:bold">${r.participantName}</td><td>Sorghum meal 1kg</td><td style="font-weight:900;color:#059669">₦1,000</td><td>${r.repName}</td><td style="font-size:10px;color:#64748b">${r.dateStr||'-'}</td><td style="white-space:nowrap">${can?`<button class="btn-edit" onclick="editRaffle('${r.docId}')">Edit</button> <button onclick="deleteRaffle('${r.docId}')" class="btn-danger">Delete</button>`:`<span style="color:#94a3b8;font-size:10px">View Only</span>`}</td></tr>`).join('')||"<tr><td colspan='7' style='text-align:center;color:#94a3b8'>No raffles</td></tr>";
+}
+async function deleteRaffle(id){
+ if(!canEdit("Raffle")) return alert("View Only - Cannot delete");
+ if(!confirm("Delete ticket?"))return;const old=raffleList.find(x=>x.docId===id);await db.collection("raffles").doc(id).delete();logAudit("Deleted","Raffle",`Deleted ticket ${old.ticketCode}`,JSON.stringify(old),"");if(editingRaffleId===id)resetRaffleForm();}
 function printCurrentTicket(){if(!currentTicketObject)return;document.getElementById("printTicketCode").innerText=currentTicketObject.ticketCode;document.getElementById("printName").innerText=currentTicketObject.participantName;document.getElementById("printItem").innerText="Sorghum meal 1kg";document.getElementById("printAmount").innerText="1,000";document.getElementById("printRep").innerText=currentTicketObject.repName;document.getElementById("printDate").innerText=currentTicketObject.dateStr;document.getElementById("printableTicketArea").style.display="block";document.getElementById("printableReport").style.display="none";window.print();setTimeout(()=>{document.getElementById("printableTicketArea").style.display="none";},500);}
 
-// USERS
 function buildAccessGrid(){const grid=document.getElementById("accessGrid");grid.innerHTML=MODULES.map(m=>`<div class="access-item"><input type="checkbox" id="acc_${m}" value="${m}"><label style="margin:0" for="acc_${m}">${m}</label><select id="perm_${m}" style="margin-left:auto;width:90px;padding:4px"><option>Add/Edit</option><option>View Only</option></select></div>`).join('');}
 function setAccessAll(){MODULES.forEach(m=>{document.getElementById("acc_"+m).checked=true;document.getElementById("perm_"+m).value="Add/Edit";});}
 function clearAccess(){MODULES.forEach(m=>document.getElementById("acc_"+m).checked=false);}
+function setViewOnly(){MODULES.forEach(m=>{document.getElementById("acc_"+m).checked=true;document.getElementById("perm_"+m).value="View Only";});}
 function getAccessObj(){const obj={};MODULES.forEach(m=>{if(document.getElementById("acc_"+m).checked){obj[m]=document.getElementById("perm_"+m).value;}});return obj;}
 async function issueUser(){
+ if(!canEdit("Users")) return alert("View Only - Cannot create users. Admin only.");
  const full=document.getElementById("uFullName").value.trim();const user=document.getElementById("uUsername").value.trim();const pass=document.getElementById("uPassword").value.trim();const role=document.getElementById("uRole").value;const status=document.getElementById("uStatus").value;const access=getAccessObj();
- if(!full||!user||!pass||!role)return alert("Fill required");const uid="USER-"+new Date().toISOString().slice(0,10).replace(/-/g,'')+"-"+String(usersList.length+1).padStart(3,'0');
+ if(!full||!user||!pass||!role)return alert("Fill required");if(Object.keys(access).length===0) return alert("⚠️ Select at least ONE module access for this user!");
+ const uid="USER-"+new Date().toISOString().slice(0,10).replace(/-/g,'')+"-"+String(usersList.length+1).padStart(3,'0');
  const data={userId:uid,fullName:full,username:user,password:pass,role:role,status:status,access:access,notes:document.getElementById("uNotes").value,createdAt:new Date().toISOString(),createdBy:currentUser.username};
- await db.collection("users").add(data);logAudit("Added","Users",`Created user ${user}`,"",JSON.stringify(data));alert("User issued: "+uid);resetUserForm();
+ await db.collection("users").add(data);logAudit("Added","Users",`Created user ${user} role ${role} with access: ${Object.keys(access).join(',')} by ${currentUser.username}`,"",JSON.stringify(data));alert(`User issued: ${uid}\nAccess: ${Object.keys(access).join(', ')}`);resetUserForm();
 }
-function editUser(id){const u=usersList.find(x=>x.docId===id); if(!u) return;editingUserId=id;document.getElementById("uId").value=u.userId;document.getElementById("uFullName").value=u.fullName;document.getElementById("uUsername").value=u.username;document.getElementById("uPassword").value=u.password;document.getElementById("uRole").value=u.role;document.getElementById("uStatus").value=u.status;document.getElementById("uNotes").value=u.notes||"";MODULES.forEach(m=>{const cb=document.getElementById("acc_"+m); if(cb) cb.checked=false;});Object.keys(u.access||{}).forEach(m=>{if(document.getElementById("acc_"+m)){document.getElementById("acc_"+m).checked=true;document.getElementById("perm_"+m).value=u.access[m];}});document.getElementById("editModeBanner").classList.add("active");document.getElementById("editUserLabel").innerText=u.username+" ("+u.fullName+")";document.getElementById("issueUserBtn").style.display="none";document.getElementById("saveUserBtn").style.display="inline-flex";document.getElementById("cancelEditBtn").style.display="inline-flex";switchTab('users');}
-async function saveEditedUser(){if(!editingUserId) return;const full=document.getElementById("uFullName").value.trim();const user=document.getElementById("uUsername").value.trim();const pass=document.getElementById("uPassword").value.trim();const role=document.getElementById("uRole").value;const status=document.getElementById("uStatus").value;const access=getAccessObj();if(!full||!user||!pass||!role) return alert("Fill all");const oldUser=usersList.find(x=>x.docId===editingUserId);const updatedData={fullName:full,username:user,password:pass,role:role,status:status,access:access,notes:document.getElementById("uNotes").value,updatedAt:new Date().toISOString(),updatedBy:currentUser.username};await db.collection("users").doc(editingUserId).update(updatedData);logAudit("Edited","Users",`Edited user ${user}`,JSON.stringify(oldUser),JSON.stringify(updatedData));alert("✅ User updated!");resetUserForm();}
+function editUser(id){
+ if(!canEdit("Users")) return alert("View Only - Cannot edit users");
+ const u=usersList.find(x=>x.docId===id); if(!u) return;editingUserId=id;document.getElementById("uId").value=u.userId;document.getElementById("uFullName").value=u.fullName;document.getElementById("uUsername").value=u.username;document.getElementById("uPassword").value=u.password;document.getElementById("uRole").value=u.role;document.getElementById("uStatus").value=u.status;document.getElementById("uNotes").value=u.notes||"";MODULES.forEach(m=>{const cb=document.getElementById("acc_"+m); if(cb) cb.checked=false;});Object.keys(u.access||{}).forEach(m=>{if(document.getElementById("acc_"+m)){document.getElementById("acc_"+m).checked=true;document.getElementById("perm_"+m).value=u.access[m];}});document.getElementById("editModeBanner").classList.add("active");document.getElementById("editUserLabel").innerText=u.username+" ("+u.fullName+")";document.getElementById("issueUserBtn").style.display="none";document.getElementById("saveUserBtn").style.display="inline-flex";document.getElementById("cancelEditBtn").style.display="inline-flex";switchTab('users');}
+async function saveEditedUser(){
+ if(!canEdit("Users")) return alert("View Only");
+ if(!editingUserId) return;const full=document.getElementById("uFullName").value.trim();const user=document.getElementById("uUsername").value.trim();const pass=document.getElementById("uPassword").value.trim();const role=document.getElementById("uRole").value;const status=document.getElementById("uStatus").value;const access=getAccessObj();if(!full||!user||!pass||!role) return alert("Fill all");if(Object.keys(access).length===0) return alert("Select at least one module access!");
+ const oldUser=usersList.find(x=>x.docId===editingUserId);const updatedData={fullName:full,username:user,password:pass,role:role,status:status,access:access,notes:document.getElementById("uNotes").value,updatedAt:new Date().toISOString(),updatedBy:currentUser.username};await db.collection("users").doc(editingUserId).update(updatedData);logAudit("Edited","Users",`Edited user ${user} - access ${Object.keys(oldUser.access||{}).join(',')}=>${Object.keys(access).join(',')}`,JSON.stringify(oldUser),JSON.stringify(updatedData));alert("✅ User updated! New access: "+Object.keys(access).join(', '));resetUserForm();}
 function cancelEditUser(){ resetUserForm(); }
 function resetUserForm(){editingUserId=null;document.getElementById("uId").value="USER-"+new Date().toISOString().slice(0,10).replace(/-/g,'')+"-"+String(usersList.length+1).padStart(3,'0');document.getElementById("uFullName").value="";document.getElementById("uUsername").value="";document.getElementById("uPassword").value="";document.getElementById("uRole").value="";document.getElementById("uStatus").value="Active";document.getElementById("uNotes").value="";clearAccess();document.getElementById("editModeBanner").classList.remove("active");document.getElementById("issueUserBtn").style.display="inline-flex";document.getElementById("saveUserBtn").style.display="none";document.getElementById("cancelEditBtn").style.display="none";}
-function renderUsers(){const body=document.getElementById("usersTableBody");body.innerHTML=usersList.map(u=>`<tr><td style="font-size:9px;font-weight:bold">${u.userId}</td><td>${u.fullName}</td><td style="font-weight:bold">${u.username}</td><td>${u.password.slice(0,2)}•••••</td><td><span style="background:#065f46;color:white;padding:2px 6px;border-radius:10px;font-size:9px">${u.role}</span></td><td style="font-size:9px">${Object.keys(u.access||{}).map(k=>`<span style="background:#dcfce7;padding:1px 4px;border-radius:6px;margin:1px;display:inline-block">${k}</span>`).join('')}</td><td><span style="background:${u.status==='Active'?'#dcfce7':'#fee2e2'};padding:2px 6px;border-radius:10px;font-size:9px">${u.status}</span></td><td><button class="btn-edit" onclick="editUser('${u.docId}')">Edit</button> <button class="btn-danger" onclick="delUser('${u.docId}')">Del</button></td></tr>`).join('')||"<tr><td colspan='8' style='text-align:center;color:#94a3b8'>No users yet</td></tr>";if(!editingUserId){ document.getElementById("uId").value="USER-"+new Date().toISOString().slice(0,10).replace(/-/g,'')+"-"+String(usersList.length+1).padStart(3,'0'); }}
-async function delUser(id){if(!confirm("Delete user?"))return;const old=usersList.find(x=>x.docId===id);if(old.username==="admin")return alert("Cannot delete admin");await db.collection("users").doc(id).delete();logAudit("Deleted","Users",`Deleted user ${old.username}`,JSON.stringify(old),"");if(editingUserId===id)resetUserForm();}
+function renderUsers(){
+ const body=document.getElementById("usersTableBody");
+ const can=canEdit("Users");
+ body.innerHTML=usersList.map(u=>`<tr><td style="font-size:9px;font-weight:bold">${u.userId}</td><td>${u.fullName}</td><td style="font-weight:bold">${u.username}</td><td>${u.password.slice(0,2)}•••••</td><td><span style="background:#065f46;color:white;padding:2px 6px;border-radius:10px;font-size:9px">${u.role}</span></td><td style="font-size:9px">${Object.keys(u.access||{}).map(k=>`<span style="background:${u.access[k]==='Add/Edit'?'#dcfce7':'#fef3c7'};padding:1px 4px;border-radius:6px;margin:1px;display:inline-block;border:1px solid ${u.access[k]==='Add/Edit'?'#16a34a':'#fbbf24'}">${k}: ${u.access[k]}</span>`).join('')}</td><td><span style="background:${u.status==='Active'?'#dcfce7':'#fee2e2'};padding:2px 6px;border-radius:10px;font-size:9px">${u.status}</span></td><td>${can?`<button class="btn-edit" onclick="editUser('${u.docId}')">Edit</button> <button class="btn-danger" onclick="delUser('${u.docId}')">Del</button>`:`<span style="color:#94a3b8;font-size:10px">View Only</span>`}</td></tr>`).join('')||"<tr><td colspan='8' style='text-align:center;color:#94a3b8'>No users yet</td></tr>";if(!editingUserId){ document.getElementById("uId").value="USER-"+new Date().toISOString().slice(0,10).replace(/-/g,'')+"-"+String(usersList.length+1).padStart(3,'0'); }}
+async function delUser(id){
+ if(!canEdit("Users")) return alert("View Only - Cannot delete");
+ if(!confirm("Delete user?"))return;const old=usersList.find(x=>x.docId===id);if(old.username==="admin")return alert("Cannot delete admin");await db.collection("users").doc(id).delete();logAudit("Deleted","Users",`Deleted user ${old.username}`,JSON.stringify(old),"");if(editingUserId===id)resetUserForm();}
 function updateUserFilter(){const sel=document.getElementById("auditUserFilter");if(!sel) return;const uniq=[...new Set(usersList.map(u=>u.username).concat(auditList.map(a=>a.user)))];sel.innerHTML="<option value=''>All Users</option>"+uniq.filter(Boolean).map(u=>`<option>${u}</option>`).join('');}
 
-// AUDIT - WITH DELETE SINGLE + PRINT DETAIL REPORT
 function renderAudit(){
  const search=(document.getElementById("auditSearch").value||"").toLowerCase();
  const modF=document.getElementById("auditModuleFilter").value;
@@ -389,44 +552,37 @@ function renderAudit(){
   return true;
  });
  const body=document.getElementById("auditTableBody");
- body.innerHTML=filtered.map(a=>`<tr><td style="font-size:9px">${a.timestamp?.slice(0,19).replace('T',' ')}</td><td>${a.dateStr||""}</td><td style="font-size:10px">${a.timeStr||""}</td><td style="font-weight:bold">${a.user}</td><td><span style="background:${a.action==='Login'?'#dcfce7':a.action==='Added'?'#dbeafe':a.action==='Deleted'?'#fee2e2':'#fef3c7'};padding:2px 6px;border-radius:10px;font-size:9px">${a.action}</span></td><td><span style="background:#065f46;color:white;padding:2px 6px;border-radius:10px;font-size:9px">${a.module}</span></td><td style="max-width:200px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="${a.details}">${a.details}</td><td style="font-size:9px">${a.ip||""}</td><td><button class="btn-danger" style="padding:3px 6px;font-size:9px" onclick="deleteAuditRecord('${a.docId}')"><i class="fa-solid fa-trash"></i> Delete</button></td></tr>`).join('')||"<tr><td colspan='9' style='text-align:center;color:#94a3b8'>No audit logs yet</td></tr>";
+ const can=canEdit("Audit");
+ body.innerHTML=filtered.map(a=>`<tr><td style="font-size:9px">${a.timestamp?.slice(0,19).replace('T',' ')}</td><td>${a.dateStr||""}</td><td style="font-size:10px">${a.timeStr||""}</td><td style="font-weight:bold">${a.user}</td><td><span style="background:${a.action==='Login'?'#dcfce7':a.action==='Added'?'#dbeafe':a.action==='Deleted'?'#fee2e2':'#fef3c7'};padding:2px 6px;border-radius:10px;font-size:9px">${a.action}</span></td><td><span style="background:#065f46;color:white;padding:2px 6px;border-radius:10px;font-size:9px">${a.module}</span></td><td style="max-width:200px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="${a.details}">${a.details}</td><td style="font-size:9px">${a.ip||""}</td><td>${can?`<button class="btn-danger" style="padding:3px 6px;font-size:9px" onclick="deleteAuditRecord('${a.docId}')"><i class="fa-solid fa-trash"></i> Delete</button>`:`<span style="color:#94a3b8;font-size:10px">View Only</span>`}</td></tr>`).join('')||"<tr><td colspan='9' style='text-align:center;color:#94a3b8'>No audit logs yet</td></tr>";
 }
-
 async function deleteAuditRecord(id){
+ if(!canEdit("Audit")) return alert("View Only - Cannot delete audit");
  if(!confirm("Delete this audit trail record? This cannot be undone.")) return;
- try{
-  await db.collection("auditTrail").doc(id).delete();
-  alert("✅ Audit record deleted!");
- }catch(e){alert("Error deleting: "+e.message);}
+ try{await db.collection("auditTrail").doc(id).delete();alert("✅ Audit record deleted!");}catch(e){alert("Error: "+e.message);}
 }
-
 function exportAuditCSV(){const csv=["timestamp,date,user,action,module,details"].concat(auditList.map(a=>`"${a.timestamp}","${a.dateStr}","${a.user}","${a.action}","${a.module}","${(a.details||"").replace(/"/g,'""')}"`)).join("\n");downloadFile(csv,"bnl_audit_trail.csv");}
-async function clearAuditTrail(){if(!confirm("Clear ALL audit logs? This will delete permanently!"))return;const batch=db.batch();auditList.forEach(a=>batch.delete(db.collection("auditTrail").doc(a.docId)));await batch.commit();alert("All audit logs cleared");}
-
+async function clearAuditTrail(){
+ if(!canEdit("Audit")) return alert("View Only - Cannot clear audit");
+ if(!confirm("Clear ALL audit logs? This will delete permanently!"))return;const batch=db.batch();auditList.forEach(a=>batch.delete(db.collection("auditTrail").doc(a.docId)));await batch.commit();alert("All audit logs cleared");}
 function downloadFile(content,name){const blob=new Blob([content],{type:"text/plain"});const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=name;a.click();}
 
-// PRINT DETAIL REPORTS
+// PRINT REPORTS
 function printSalesReport(){
  const total=salesList.reduce((s,i)=>s+(i.totalAmount||0),0);
- let html=`<div style="font-family:Arial;padding:20px"><h2 style="text-align:center">BNL PRODUCTS - 2026 Product Showcase & End of Year Celebration</h2><h3 style="text-align:center">SALES DETAIL REPORT</h3><p style="text-align:center;font-size:12px">Generated: ${new Date().toLocaleString()} | By: ${currentUser.fullName}</p><hr><p><strong>Total Revenue:</strong> ₦${total.toLocaleString()} | <strong>Transactions:</strong> ${salesList.length} | <strong>Items Sold:</strong> ${salesList.reduce((s,i)=>s+(i.qty||0),0)}</p><table border="1" cellpadding="6" cellspacing="0" style="width:100%;border-collapse:collapse;font-size:11px"><thead><tr style="background:#065f46;color:white"><th>Time</th><th>Product</th><th>Qty</th><th>Unit Price</th><th>Total</th><th>Customer</th><th>Rep</th></tr></thead><tbody>${salesList.map(s=>`<tr><td>${s.timeStr||''} ${s.dateStr||''}</td><td>${s.productName}</td><td>${s.qty}</td><td>₦${(s.unitPrice||0).toLocaleString()}</td><td>₦${(s.totalAmount||0).toLocaleString()}</td><td>${s.customerName}</td><td>${s.repName}</td></tr>`).join('')}</tbody></table></div>`;
+ let html=`<div style="font-family:Arial;padding:20px"><h2 style="text-align:center">BNL PRODUCTS - 2026 Product Showcase & End of Year Celebration</h2><h3 style="text-align:center">SALES DETAIL REPORT</h3><p style="text-align:center;font-size:12px">Generated: ${new Date().toLocaleString()} | By: ${currentUser.fullName}</p><hr><p><strong>Total Revenue:</strong> ₦${total.toLocaleString()} | <strong>Transactions:</strong> ${salesList.length}</p><table border="1" cellpadding="6" cellspacing="0" style="width:100%;border-collapse:collapse;font-size:11px"><thead><tr style="background:#065f46;color:white"><th>Time</th><th>Product</th><th>Qty</th><th>Unit Price</th><th>Total</th><th>Customer</th><th>Rep</th></tr></thead><tbody>${salesList.map(s=>`<tr><td>${s.timeStr||''} ${s.dateStr||''}</td><td>${s.productName}</td><td>${s.qty}</td><td>₦${(s.unitPrice||0).toLocaleString()}</td><td>₦${(s.totalAmount||0).toLocaleString()}</td><td>${s.customerName}</td><td>${s.repName}</td></tr>`).join('')}</tbody></table></div>`;
  document.getElementById("printableReport").innerHTML=html;document.getElementById("printableReport").style.display="block";document.getElementById("printableTicketArea").style.display="none";window.print();setTimeout(()=>document.getElementById("printableReport").style.display="none",500);
 }
-
 function printRaffleReport(){
  let html=`<div style="font-family:Arial;padding:20px"><h2 style="text-align:center">BNL PRODUCTS - 2026 Product Showcase & End of Year Celebration</h2><h3 style="text-align:center">RAFFLE DETAIL REPORT - Sorghum meal 1kg (₦1000)</h3><p style="text-align:center;font-size:12px">Generated: ${new Date().toLocaleString()} | Total Tickets: ${raffleList.length}</p><hr><table border="1" cellpadding="6" cellspacing="0" style="width:100%;border-collapse:collapse;font-size:11px"><thead><tr style="background:#d97706;color:white"><th>Ticket No</th><th>Participant</th><th>Item</th><th>Amount</th><th>Issued By</th><th>Date</th></tr></thead><tbody>${raffleList.map(r=>`<tr><td>${r.ticketCode}</td><td>${r.participantName}</td><td>${r.itemNote}</td><td>₦${(r.amount||1000).toLocaleString()}</td><td>${r.repName}</td><td>${r.dateStr||''}</td></tr>`).join('')}</tbody></table></div>`;
  document.getElementById("printableReport").innerHTML=html;document.getElementById("printableReport").style.display="block";document.getElementById("printableTicketArea").style.display="none";window.print();setTimeout(()=>document.getElementById("printableReport").style.display="none",500);
 }
-
 function printAuditReport(){
- const filteredSearch=(document.getElementById("auditSearch").value||"");
- let filtered=auditList;
- let html=`<div style="font-family:Arial;padding:20px"><h2 style="text-align:center">BNL PRODUCTS - 2026 Product Showcase & End of Year Celebration</h2><h3 style="text-align:center">AUDIT TRAIL DETAIL REPORT</h3><p style="text-align:center;font-size:12px">Generated: ${new Date().toLocaleString()} | By: ${currentUser.fullName} | Total Logs: ${auditList.length} ${filteredSearch?`| Filter: ${filteredSearch}`:''}</p><hr><table border="1" cellpadding="5" cellspacing="0" style="width:100%;border-collapse:collapse;font-size:10px"><thead><tr style="background:#065f46;color:white"><th>Timestamp</th><th>Date</th><th>User</th><th>Action</th><th>Module</th><th>Details</th><th>IP</th></tr></thead><tbody>${filtered.map(a=>`<tr><td>${a.timestamp?.slice(0,19).replace('T',' ')||''}</td><td>${a.dateStr||''}</td><td>${a.user}</td><td>${a.action}</td><td>${a.module}</td><td>${a.details}</td><td>${a.ip||''}</td></tr>`).join('')}</tbody></table><br><p style="font-size:10px;text-align:center">--- End of Audit Detail Report ---<br>BNL Products - Boskel Formidable 6</p></div>`;
+ let html=`<div style="font-family:Arial;padding:20px"><h2 style="text-align:center">BNL PRODUCTS - 2026 Product Showcase & End of Year Celebration</h2><h3 style="text-align:center">AUDIT TRAIL DETAIL REPORT</h3><p style="text-align:center;font-size:12px">Generated: ${new Date().toLocaleString()} | By: ${currentUser.fullName} | Total Logs: ${auditList.length}</p><hr><table border="1" cellpadding="5" cellspacing="0" style="width:100%;border-collapse:collapse;font-size:10px"><thead><tr style="background:#065f46;color:white"><th>Timestamp</th><th>Date</th><th>User</th><th>Action</th><th>Module</th><th>Details</th><th>IP</th></tr></thead><tbody>${auditList.map(a=>`<tr><td>${a.timestamp?.slice(0,19).replace('T',' ')||''}</td><td>${a.dateStr||''}</td><td>${a.user}</td><td>${a.action}</td><td>${a.module}</td><td>${a.details}</td><td>${a.ip||''}</td></tr>`).join('')}</tbody></table></div>`;
  document.getElementById("printableReport").innerHTML=html;document.getElementById("printableReport").style.display="block";document.getElementById("printableTicketArea").style.display="none";window.print();setTimeout(()=>document.getElementById("printableReport").style.display="none",500);
 }
-
 function printHomeReport(){
  const total=salesList.reduce((s,i)=>s+(i.totalAmount||0),0);
- let html=`<div style="font-family:Arial;padding:20px"><h2 style="text-align:center">BNL PRODUCTS</h2><h3 style="text-align:center">2026 Product Showcase & End of Year Celebration<br>SUMMARY DETAIL REPORT</h3><p style="text-align:center;font-size:12px">Generated: ${new Date().toLocaleString()}</p><hr><div style="display:flex;gap:20px;justify-content:space-around;text-align:center;margin:20px 0"><div style="border:1px solid #ddd;padding:15px;border-radius:8px"><h4>TOTAL REVENUE</h4><h2>₦${total.toLocaleString()}</h2><p>${salesList.length} transactions</p></div><div style="border:1px solid #ddd;padding:15px;border-radius:8px"><h4>ITEMS SOLD</h4><h2>${salesList.reduce((s,i)=>s+(i.qty||0),0)}</h2></div><div style="border:1px solid #ddd;padding:15px;border-radius:8px"><h4>RAFFLE TICKETS</h4><h2>${raffleList.length}</h2></div></div><h4>Sales Breakdown:</h4><table border="1" cellpadding="5" cellspacing="0" style="width:100%;font-size:11px"><tr style="background:#065f46;color:white"><th>Product</th><th>Total Amount</th><th>Qty</th></tr>${Object.entries(salesList.reduce((acc,s)=>{acc[s.productName]=(acc[s.productName]||{amount:0,qty:0});acc[s.productName].amount+=s.totalAmount;acc[s.productName].qty+=s.qty;return acc;},{})).map(([k,v])=>`<tr><td>${k}</td><td>₦${v.amount.toLocaleString()}</td><td>${v.qty}</td></tr>`).join('')}</table></div>`;
+ let html=`<div style="font-family:Arial;padding:20px"><h2 style="text-align:center">BNL PRODUCTS</h2><h3 style="text-align:center">2026 Product Showcase & End of Year Celebration<br>SUMMARY DETAIL REPORT</h3><p style="text-align:center;font-size:12px">Generated: ${new Date().toLocaleString()}</p><hr><div style="display:flex;gap:20px;justify-content:space-around;text-align:center;margin:20px 0"><div style="border:1px solid #ddd;padding:15px;border-radius:8px"><h4>TOTAL REVENUE</h4><h2>₦${total.toLocaleString()}</h2><p>${salesList.length} transactions</p></div><div style="border:1px solid #ddd;padding:15px;border-radius:8px"><h4>ITEMS SOLD</h4><h2>${salesList.reduce((s,i)=>s+(i.qty||0),0)}</h2></div><div style="border:1px solid #ddd;padding:15px;border-radius:8px"><h4>RAFFLE TICKETS</h4><h2>${raffleList.length}</h2></div></div></div>`;
  document.getElementById("printableReport").innerHTML=html;document.getElementById("printableReport").style.display="block";document.getElementById("printableTicketArea").style.display="none";window.print();setTimeout(()=>document.getElementById("printableReport").style.display="none",500);
 }
 </script>
