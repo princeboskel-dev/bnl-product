@@ -471,7 +471,7 @@ async function deleteSale(id){
 async function handleRaffleSubmit(){
  if(!canEdit("Raffle")) return alert("View Only");
  const name=document.getElementById("raffleName").value.trim();if(!name)return alert("Enter participant name");
- const item="Sorghum meal 1kg"; const amount=1000; const nextNum=raffleList.length+1;const code="BNL-"+String(nextNum).padStart(4,'0');
+ const item="Sorghum meal 1kg"; const amount=1500; const nextNum=raffleList.length+1;const code="BNL-"+String(nextNum).padStart(4,'0');
  const raff={ticketNum:nextNum,ticketCode:code,participantName:name,itemNote:item,amount:amount,repName:currentUser.fullName,timestamp:new Date().toISOString(),dateStr:new Date().toLocaleString(),createdBy:currentUser.username};
  await db.collection("raffles").add(raff);currentTicketObject=raff;document.getElementById("resTicketCode").innerText=code;document.getElementById("resParticipantName").innerText=name;document.getElementById("resDetails").innerText=`Item: ${item} | Amount: ₦${amount.toLocaleString()} | Rep: ${currentUser.fullName}`;document.getElementById("ticketResultCard").style.display="block";logAudit("Added","Raffle",`Issued ticket ${code} to ${name} - ${item} ₦${amount}`, "", JSON.stringify(raff));document.getElementById("raffleName").value="";
 }
