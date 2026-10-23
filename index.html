@@ -164,7 +164,7 @@ td{padding:10px;border-bottom:1px solid #f1f5f9;color:#334155;font-weight:500}
 </div>
 </div>
 <div class="card">
-<h3 style="font-size:13px;font-weight:bold">Raffle Log - Sorghum meal 1kg Only (₦1000)</h3>
+<h3 style="font-size:13px;font-weight:bold">Raffle Log - Sorghum meal 1kg Only (₦1500)</h3>
 <div class="table-container"><table><thead><tr><th>Ticket No</th><th>Participant</th><th>Item</th><th>Amount (₦)</th><th>Issued By</th><th>Timestamp</th><th>Action</th></tr></thead><tbody id="raffleTableBody"></tbody></table></div>
 </div>
 </div>
@@ -249,7 +249,7 @@ td{padding:10px;border-bottom:1px solid #f1f5f9;color:#334155;font-weight:500}
 </div>
 <div class="card report-card raffle">
 <h3 style="font-size:13px;font-weight:bold;margin-bottom:10px"><i class="fa-solid fa-ticket" style="color:#d97706"></i> Raffle Detail Report</h3>
-<p style="font-size:11px;color:#64748b;margin-bottom:10px">Sorghum meal 1kg = ₦1000 Only</p>
+<p style="font-size:11px;color:#64748b;margin-bottom:10px">Sorghum meal 1kg = ₦1500 Only</p>
 <div style="max-height:200px;overflow-y:auto;font-size:10px" id="report-raffle-preview"></div>
 <div style="display:flex;gap:6px;margin-top:10px">
 <button class="btn btn-amber" style="flex:1" onclick="printRaffleReport()"><i class="fa-solid fa-print"></i> Print Raffle Detail</button>
@@ -297,8 +297,8 @@ let currentUser=JSON.parse(localStorage.getItem('bnl_currentUser')||'null');
 let salesList=[],raffleList=[],usersList=[],auditList=[],currentTicketObject=null;
 let editingUserId=null, editingSaleId=null, editingRaffleId=null;
 const PRODUCT_PRICES={
-"Sorghum meal 1kg":2000,"Sorghum meal 2kg":4000,"Sorghum meal 4kg":4000,
-"Black Intense Activated charcoal soap 300g":4500,"Black Intense Activated charcoal soap 100g":1000,
+"Sorghum meal 1kg":1000,"Sorghum meal 2kg":2000,"Sorghum meal 4kg":4000,
+"Black Intense Activated charcoal soap 300g":500,"Black Intense Activated charcoal soap 100g":1000,
 "Activated charcoal Powder 500g":12000,"Bitterleaves":3000,"Activated charcoal capsules":5000,
 "Kels briquettes":7500,"Ground ogbono mix 150g":4500,"Ground egusi mix 150g":3500
 };
