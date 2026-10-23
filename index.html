@@ -50,6 +50,11 @@ td{padding:10px;border-bottom:1px solid #f1f5f9;color:#334155;font-weight:500}
 .login-logo{background:#065f46;color:white;font-weight:900;padding:8px 12px;border-radius:8px;display:inline-block;font-size:18px}
 .edit-mode-banner{display:none;background:#fef3c7;border:1px solid #fbbf24;color:#92400e;padding:8px 12px;border-radius:8px;font-size:11px;font-weight:bold;margin-bottom:12px}
 .edit-mode-banner.active{display:block}
+/* EYE ICON WRAPPER */
+.password-wrapper{position:relative;display:flex;align-items:center}
+.password-wrapper input{padding-right:40px}
+.eye-icon{position:absolute;right:10px;top:50%;transform:translateY(-50%);cursor:pointer;color:#64748b;background:none;border:none;font-size:16px;padding:4px}
+.eye-icon:hover{color:#065f46}
 @media print{body *{visibility:hidden}#printableTicketArea,#printableTicketArea *{visibility:visible}#printableTicketArea{position:absolute;left:0;top:0;width:100%}}
 </style>
 </head>
@@ -60,7 +65,11 @@ td{padding:10px;border-bottom:1px solid #f1f5f9;color:#334155;font-weight:500}
 <div style="text-align:center;margin-bottom:16px"><div class="login-logo">BNL</div><h2 style="font-weight:900;margin-top:10px;color:#065f46">BNL PRODUCTS</h2><p style="font-size:11px;color:#64748b">SALES & RAFFLE HUB - CLOUD LIVE</p></div>
 <div id="loginError" style="color:#dc2626;font-size:11px;margin-bottom:10px;display:none;background:#fee2e2;padding:8px;border-radius:6px"></div>
 <label>Username *</label><input id="loginUser" placeholder="Enter username">
-<label>Password *</label><input id="loginPass" type="password" placeholder="Enter password">
+<label>Password *</label>
+<div class="password-wrapper">
+<input id="loginPass" type="password" placeholder="Enter password">
+<button type="button" class="eye-icon" onclick="togglePassword('loginPass','eyeLogin')"><i id="eyeLogin" class="fa-solid fa-eye"></i></button>
+</div>
 <button class="btn" style="width:100%;margin-top:12px;padding:12px" onclick="handleLogin()"><i class="fa-solid fa-right-to-bracket"></i> Sign In - BNL Cloud</button>
 </div>
 </div>
@@ -147,7 +156,12 @@ td{padding:10px;border-bottom:1px solid #f1f5f9;color:#334155;font-weight:500}
 <div><label>User ID</label><input id="uId" readonly></div>
 <div><label>Full Name *</label><input id="uFullName" placeholder="John Doe"></div>
 <div><label>Username *</label><input id="uUsername" placeholder="john"></div>
-<div><label>Password *</label><input id="uPassword" placeholder="1234"></div>
+<div><label>Password *</label>
+<div class="password-wrapper">
+<input id="uPassword" placeholder="1234" type="password">
+<button type="button" class="eye-icon" onclick="togglePassword('uPassword','eyeUser')"><i id="eyeUser" class="fa-solid fa-eye"></i></button>
+</div>
+</div>
 <div><label>Role *</label><select id="uRole"><option value="">-- Select --</option><option>Admin</option><option>Sales Officer</option><option>Viewer</option></select></div>
 <div><label>Status *</label><select id="uStatus"><option>Active</option><option>Inactive</option></select></div>
 </div>
@@ -228,6 +242,14 @@ let salesList=[],raffleList=[],usersList=[],auditList=[],currentTicketObject=nul
 let editingUserId=null;
 const PRODUCT_PRICES={"Sorghum Mill":150000,"Stove":25000,"Briquette":3500,"Activated Charcoal":5000,"Bitter Leaf Soap":1500};
 const MODULES=["Dashboard","Sales","Raffle","Users","Audit","Reports"];
+
+function togglePassword(inputId, eyeId){
+ const input=document.getElementById(inputId);
+ const eye=document.getElementById(eyeId);
+ if(input.type==="password"){input.type="text";eye.classList.remove("fa-eye");eye.classList.add("fa-eye-slash");}
+ else{input.type="password";eye.classList.remove("fa-eye-slash");eye.classList.add("fa-eye");}
+}
+
 function init(){
  buildAccessGrid();
  db.collection("sales").orderBy("timestamp","desc").onSnapshot(s=>{salesList=s.docs.map(d=>({docId:d.id,...d.data()}));refreshKPIs();renderSales();});
@@ -327,6 +349,8 @@ function editUser(id){
  document.getElementById("uFullName").value=u.fullName;
  document.getElementById("uUsername").value=u.username;
  document.getElementById("uPassword").value=u.password;
+ document.getElementById("uPassword").type="password";
+ document.getElementById("eyeUser").classList.remove("fa-eye-slash");document.getElementById("eyeUser").classList.add("fa-eye");
  document.getElementById("uRole").value=u.role;
  document.getElementById("uStatus").value=u.status;
  document.getElementById("uNotes").value=u.notes||"";
@@ -360,7 +384,7 @@ function cancelEditUser(){ resetUserForm(); }
 function resetUserForm(){
  editingUserId=null;
  document.getElementById("uId").value="USER-"+new Date().toISOString().slice(0,10).replace(/-/g,'')+"-"+String(usersList.length+1).padStart(3,'0');
- document.getElementById("uFullName").value="";document.getElementById("uUsername").value="";document.getElementById("uPassword").value="";document.getElementById("uRole").value="";document.getElementById("uStatus").value="Active";document.getElementById("uNotes").value="";
+ document.getElementById("uFullName").value="";document.getElementById("uUsername").value="";document.getElementById("uPassword").value="";document.getElementById("uPassword").type="password";document.getElementById("eyeUser").classList.remove("fa-eye-slash");document.getElementById("eyeUser").classList.add("fa-eye");document.getElementById("uRole").value="";document.getElementById("uStatus").value="Active";document.getElementById("uNotes").value="";
  clearAccess();
  document.getElementById("editModeBanner").classList.remove("active");
  document.getElementById("issueUserBtn").style.display="inline-flex";
