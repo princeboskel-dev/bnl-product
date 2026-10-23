@@ -98,12 +98,9 @@ td{padding:10px;border-bottom:1px solid #f1f5f9;color:#334155;font-weight:500}
 </div>
 </div>
 
-<!-- SALES WITH EDIT SAVE -->
 <div id="tab-sales" class="tab-content">
 <div class="card">
-<div style="display:flex;justify-content:space-between;align-items:center">
 <h2 style="font-size:14px;font-weight:bold;margin-bottom:12px"><i class="fa-solid fa-cart-plus" style="color:#059669"></i> Record New Sale</h2>
-</div>
 <div id="editSaleBanner" class="edit-mode-banner"><i class="fa-solid fa-pen-to-square"></i> EDIT MODE - Editing Sale: <span id="editSaleLabel"></span> - Update then Save Changes</div>
 <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px">
 <div><label>Select Product *</label><select id="saleProduct" onchange="onProductChange()" required><option value="" disabled selected>-- Choose --</option><option>Sorghum Mill</option><option>Stove</option><option>Briquette</option><option>Activated Charcoal</option><option>Bitter Leaf Soap</option><option>Other / Custom Product</option></select></div>
@@ -128,14 +125,14 @@ td{padding:10px;border-bottom:1px solid #f1f5f9;color:#334155;font-weight:500}
 </div>
 </div>
 
-<!-- RAFFLE WITH EDIT SAVE -->
 <div id="tab-raffle" class="tab-content">
 <div class="card">
 <h2 style="font-size:14px;font-weight:bold;margin-bottom:12px"><i class="fa-solid fa-ticket" style="color:#d97706"></i> Issue Raffle Ticket</h2>
 <div id="editRaffleBanner" class="edit-mode-banner"><i class="fa-solid fa-pen-to-square"></i> EDIT MODE - Editing Ticket: <span id="editRaffleLabel"></span> - Update then Save Changes</div>
 <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px">
 <div><label>Participant Name *</label><input type="text" id="raffleName" placeholder="Enter full name" required></div>
-<div><label>Associated Purchase *</label><select id="raffleNote" required><option value="" disabled selected>-- Select Item --</option><option>Sorghum Mill</option><option>Stove</option><option>Briquette</option><option>Activated Charcoal</option><option>Bitter Leaf Soap</option><option>General Entry / Visitor</option></select></div>
+<div><label>Associated Purchase *</label><select id="raffleNote" onchange="onRaffleProductChange()" required><option value="" disabled selected>-- Select Item --</option><option>Sorghum Mill</option><option>Stove</option><option>Briquette</option><option>Activated Charcoal</option><option>Bitter Leaf Soap</option><option>General Entry / Visitor</option></select></div>
+<div><label>Amount (₦) *</label><input type="number" id="raffleAmount" min="0" placeholder="0.00" required></div>
 </div>
 <div style="display:flex;gap:8px;margin-top:12px">
 <button id="issueRaffleBtn" class="btn btn-amber" style="flex:1" onclick="handleRaffleSubmit()"><i class="fa-solid fa-id-card"></i> Generate Ticket Number</button>
@@ -151,10 +148,10 @@ td{padding:10px;border-bottom:1px solid #f1f5f9;color:#334155;font-weight:500}
 </div>
 <div class="card">
 <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;border-bottom:1px solid #e2e8f0;padding-bottom:10px">
-<h3 style="font-size:13px;font-weight:bold"><i class="fa-solid fa-rectangle-list" style="color:#d97706"></i> Raffle Log</h3>
+<h3 style="font-size:13px;font-weight:bold"><i class="fa-solid fa-rectangle-list" style="color:#d97706"></i> Raffle Log - With Amount</h3>
 <input type="text" id="raffleSearchInput" onkeyup="renderRaffle()" placeholder="Search..." style="max-width:200px;padding:6px 10px">
 </div>
-<div class="table-container"><table><thead><tr><th>Ticket No</th><th>Participant</th><th>Item</th><th>Issued By</th><th>Timestamp</th><th>Action</th></tr></thead><tbody id="raffleTableBody"></tbody></table></div>
+<div class="table-container"><table><thead><tr><th>Ticket No</th><th>Participant</th><th>Item</th><th>Amount (₦)</th><th>Issued By</th><th>Timestamp</th><th>Action</th></tr></thead><tbody id="raffleTableBody"></tbody></table></div>
 </div>
 </div>
 
@@ -233,7 +230,7 @@ td{padding:10px;border-bottom:1px solid #f1f5f9;color:#334155;font-weight:500}
 <div style="border:2px dashed black;padding:20px;text-align:center;max-width:280px;margin:0 auto">
 <h2 style="font-weight:900;font-size:20px">BNL PRODUCTS</h2><p style="font-size:10px;text-transform:uppercase;border-bottom:1px solid black;padding-bottom:6px;font-weight:bold">Official Raffle Entry Ticket</p>
 <div style="padding:10px 0"><p style="font-size:10px">TICKET NUMBER</p><p id="printTicketCode" style="font-size:28px;font-weight:900">BNL-0001</p></div>
-<div style="text-align:left;font-size:11px;border-top:1px solid black;padding-top:6px;display:flex;flex-direction:column;gap:4px"><div><strong>Name:</strong> <span id="printName">-</span></div><div><strong>Item:</strong> <span id="printItem">-</span></div><div><strong>Rep:</strong> <span id="printRep">-</span></div><div><strong>Date:</strong> <span id="printDate">-</span></div></div>
+<div style="text-align:left;font-size:11px;border-top:1px solid black;padding-top:6px;display:flex;flex-direction:column;gap:4px"><div><strong>Name:</strong> <span id="printName">-</span></div><div><strong>Item:</strong> <span id="printItem">-</span></div><div><strong>Amount:</strong> ₦<span id="printAmount">-</span></div><div><strong>Rep:</strong> <span id="printRep">-</span></div><div><strong>Date:</strong> <span id="printDate">-</span></div></div>
 </div>
 </div>
 </div>
@@ -302,9 +299,10 @@ async function logAudit(action,moduleName,details,oldVal="",newVal=""){
  try{await db.collection("auditTrail").add(entry);}catch(e){}
 }
 
-// SALES EDIT LOGIC
 function onProductChange(){const v=document.getElementById("saleProduct").value;const box=document.getElementById("customProductBox");if(v==="Other / Custom Product"){box.style.display="block"}else{box.style.display="none";if(PRODUCT_PRICES[v])document.getElementById("salePrice").value=PRODUCT_PRICES[v];}calculateTotal();}
 function calculateTotal(){const p=parseFloat(document.getElementById("salePrice").value)||0;const q=parseInt(document.getElementById("saleQty").value)||1;document.getElementById("saleTotal").value="₦"+(p*q).toLocaleString('en-US',{minimumFractionDigits:2});}
+function onRaffleProductChange(){const v=document.getElementById("raffleNote").value; if(PRODUCT_PRICES[v]){document.getElementById("raffleAmount").value=PRODUCT_PRICES[v];} else if(v==="General Entry / Visitor"){document.getElementById("raffleAmount").value=0;} }
+
 async function handleSaleSubmit(){
  const prodSel=document.getElementById("saleProduct").value;if(!prodSel)return alert("Select product");
  const prodName=prodSel==="Other / Custom Product"?document.getElementById("customProductName").value:prodSel;
@@ -369,20 +367,24 @@ function renderSales(){
 }
 async function deleteSale(id){if(!confirm("Delete this sale from cloud?"))return;const old=salesList.find(x=>x.docId===id);await db.collection("sales").doc(id).delete();logAudit("Deleted","Sales",`Deleted sale ${old.productName} ₦${old.totalAmount} by ${currentUser.username}`,JSON.stringify(old),"");if(editingSaleId===id)resetSaleForm();}
 
-// RAFFLE EDIT LOGIC
+// RAFFLE WITH AMOUNT
 async function handleRaffleSubmit(){
  const name=document.getElementById("raffleName").value.trim();if(!name)return alert("Enter participant name");
+ const item=document.getElementById("raffleNote").value; if(!item) return alert("Select purchase");
+ const amount=parseFloat(document.getElementById("raffleAmount").value)||0;
  const nextNum=raffleList.length+1;const code="BNL-"+String(nextNum).padStart(4,'0');
- const raff={ticketNum:nextNum,ticketCode:code,participantName:name,itemNote:document.getElementById("raffleNote").value,repName:currentUser.fullName,timestamp:new Date().toISOString(),dateStr:new Date().toLocaleString(),createdBy:currentUser.username};
- await db.collection("raffles").add(raff);currentTicketObject=raff;document.getElementById("resTicketCode").innerText=code;document.getElementById("resParticipantName").innerText=name;document.getElementById("resDetails").innerText=`Item: ${raff.itemNote} | Rep: ${raff.repName}`;document.getElementById("ticketResultCard").style.display="block";logAudit("Added","Raffle",`Issued ticket ${code} to ${name} by ${currentUser.username}`,"",JSON.stringify(raff));resetRaffleForm();
+ const raff={ticketNum:nextNum,ticketCode:code,participantName:name,itemNote:item,amount:amount,repName:currentUser.fullName,timestamp:new Date().toISOString(),dateStr:new Date().toLocaleString(),createdBy:currentUser.username};
+ await db.collection("raffles").add(raff);currentTicketObject=raff;document.getElementById("resTicketCode").innerText=code;document.getElementById("resParticipantName").innerText=name;document.getElementById("resDetails").innerText=`Item: ${item} | Amount: ₦${amount.toLocaleString()} | Rep: ${currentUser.fullName}`;document.getElementById("ticketResultCard").style.display="block";logAudit("Added","Raffle",`Issued ticket ${code} to ${name} - ${item} ₦${amount} by ${currentUser.username}`,"",JSON.stringify(raff));resetRaffleFormInputs();
 }
+function resetRaffleFormInputs(){document.getElementById("raffleName").value="";document.getElementById("raffleNote").value="";document.getElementById("raffleAmount").value="";}
 function editRaffle(id){
  const r=raffleList.find(x=>x.docId===id); if(!r) return;
  editingRaffleId=id;
  document.getElementById("raffleName").value=r.participantName;
  document.getElementById("raffleNote").value=r.itemNote;
+ document.getElementById("raffleAmount").value=r.amount||0;
  document.getElementById("editRaffleBanner").classList.add("active");
- document.getElementById("editRaffleLabel").innerText=r.ticketCode+" - "+r.participantName;
+ document.getElementById("editRaffleLabel").innerText=r.ticketCode+" - "+r.participantName+" - ₦"+(r.amount||0).toLocaleString();
  document.getElementById("issueRaffleBtn").style.display="none";
  document.getElementById("saveRaffleBtn").style.display="inline-flex";
  document.getElementById("cancelRaffleBtn").style.display="inline-flex";
@@ -392,18 +394,19 @@ async function saveEditedRaffle(){
  if(!editingRaffleId) return;
  const name=document.getElementById("raffleName").value.trim();
  const item=document.getElementById("raffleNote").value;
+ const amount=parseFloat(document.getElementById("raffleAmount").value)||0;
  if(!name) return alert("Enter name");
  const old=raffleList.find(x=>x.docId===editingRaffleId);
- const updated={participantName:name,itemNote:item,updatedAt:new Date().toISOString(),updatedBy:currentUser.username};
+ const updated={participantName:name,itemNote:item,amount:amount,updatedAt:new Date().toISOString(),updatedBy:currentUser.username};
  await db.collection("raffles").doc(editingRaffleId).update(updated);
- logAudit("Edited","Raffle",`Edited ticket ${old.ticketCode} ${old.participantName}=>${name} by ${currentUser.username}`,JSON.stringify(old),JSON.stringify(updated));
+ logAudit("Edited","Raffle",`Edited ticket ${old.ticketCode} ${old.participantName}=>${name} Amount ₦${old.amount||0}=>₦${amount} by ${currentUser.username}`,JSON.stringify(old),JSON.stringify(updated));
  alert("✅ Raffle updated!");
  resetRaffleForm();
 }
 function cancelEditRaffle(){ resetRaffleForm(); }
 function resetRaffleForm(){
  editingRaffleId=null;
- document.getElementById("raffleName").value="";document.getElementById("raffleNote").value="";
+ document.getElementById("raffleName").value="";document.getElementById("raffleNote").value="";document.getElementById("raffleAmount").value="";
  document.getElementById("editRaffleBanner").classList.remove("active");
  document.getElementById("issueRaffleBtn").style.display="inline-flex";
  document.getElementById("saveRaffleBtn").style.display="none";
@@ -413,10 +416,10 @@ function renderRaffle(){
  const q=(document.getElementById("raffleSearchInput").value||"").toLowerCase();
  const body=document.getElementById("raffleTableBody");
  const filtered=raffleList.filter(r=>JSON.stringify(r).toLowerCase().includes(q));
- body.innerHTML=filtered.map(r=>`<tr><td style="font-weight:900;color:#d97706">${r.ticketCode}</td><td style="font-weight:bold">${r.participantName}</td><td>${r.itemNote}</td><td>${r.repName}</td><td style="font-size:10px;color:#64748b">${r.dateStr||'-'}</td><td style="white-space:nowrap"><button class="btn-edit" onclick="editRaffle('${r.docId}')">Edit</button> <button onclick="deleteRaffle('${r.docId}')" class="btn-danger">Delete</button></td></tr>`).join('')||"<tr><td colspan='6' style='text-align:center;color:#94a3b8'>No raffles</td></tr>";
+ body.innerHTML=filtered.map(r=>`<tr><td style="font-weight:900;color:#d97706">${r.ticketCode}</td><td style="font-weight:bold">${r.participantName}</td><td>${r.itemNote}</td><td style="font-weight:900;color:#059669">₦${(r.amount||0).toLocaleString()}</td><td>${r.repName}</td><td style="font-size:10px;color:#64748b">${r.dateStr||'-'}</td><td style="white-space:nowrap"><button class="btn-edit" onclick="editRaffle('${r.docId}')">Edit</button> <button onclick="deleteRaffle('${r.docId}')" class="btn-danger">Delete</button></td></tr>`).join('')||"<tr><td colspan='7' style='text-align:center;color:#94a3b8'>No raffles</td></tr>";
 }
-async function deleteRaffle(id){if(!confirm("Delete ticket?"))return;const old=raffleList.find(x=>x.docId===id);await db.collection("raffles").doc(id).delete();logAudit("Deleted","Raffle",`Deleted ticket ${old.ticketCode}`,JSON.stringify(old),"");if(editingRaffleId===id)resetRaffleForm();}
-function printCurrentTicket(){if(!currentTicketObject)return;document.getElementById("printTicketCode").innerText=currentTicketObject.ticketCode;document.getElementById("printName").innerText=currentTicketObject.participantName;document.getElementById("printItem").innerText=currentTicketObject.itemNote;document.getElementById("printRep").innerText=currentTicketObject.repName;document.getElementById("printDate").innerText=currentTicketObject.dateStr;window.print();}
+async function deleteRaffle(id){if(!confirm("Delete ticket?"))return;const old=raffleList.find(x=>x.docId===id);await db.collection("raffles").doc(id).delete();logAudit("Deleted","Raffle",`Deleted ticket ${old.ticketCode} ₦${old.amount||0}`,JSON.stringify(old),"");if(editingRaffleId===id)resetRaffleForm();}
+function printCurrentTicket(){if(!currentTicketObject)return;document.getElementById("printTicketCode").innerText=currentTicketObject.ticketCode;document.getElementById("printName").innerText=currentTicketObject.participantName;document.getElementById("printItem").innerText=currentTicketObject.itemNote;document.getElementById("printAmount").innerText=(currentTicketObject.amount||0).toLocaleString();document.getElementById("printRep").innerText=currentTicketObject.repName;document.getElementById("printDate").innerText=currentTicketObject.dateStr;window.print();}
 
 function buildAccessGrid(){const grid=document.getElementById("accessGrid");grid.innerHTML=MODULES.map(m=>`<div class="access-item"><input type="checkbox" id="acc_${m}" value="${m}"><label style="margin:0" for="acc_${m}">${m}</label><select id="perm_${m}" style="margin-left:auto;width:90px;padding:4px"><option>Add/Edit</option><option>View Only</option></select></div>`).join('');}
 function setAccessAll(){MODULES.forEach(m=>{document.getElementById("acc_"+m).checked=true;document.getElementById("perm_"+m).value="Add/Edit";});}
