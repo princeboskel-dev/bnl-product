@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Boskel Formidable 6</title>
+<title>BNL Products - Boskel Formidable 6</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
@@ -76,7 +76,7 @@ td{padding:10px;border-bottom:1px solid #f1f5f9;color:#334155;font-weight:500}
 <div id="app" style="display:none">
 <header>
 <div class="header-container">
-<div class="brand-box"><div class="brand-logo">BNL</div><div><h1 style="font-size:14px;font-weight:900"> BOSKEL FORMIDABLE Six</h1><p style="font-size:11px;color:#a7f3d0;font-weight:800">2026 </p></div></div>
+<div class="brand-box"><div class="brand-logo">BNL</div><div><h1 style="font-size:14px;font-weight:900">BNL PRODUCTS</h1><p style="font-size:11px;color:#a7f3d0;font-weight:800">Boskel Formidable 6</p></div></div>
 <div style="display:flex;gap:8px;align-items:center">
 <div class="sync-badge"><span class="sync-dot" id="syncDot"></span><span id="syncText">Cloud Live</span></div>
 <span id="userBadge" style="background:white;color:#065f46;padding:4px 10px;border-radius:20px;font-size:10px;font-weight:bold"></span>
@@ -88,7 +88,7 @@ td{padding:10px;border-bottom:1px solid #f1f5f9;color:#334155;font-weight:500}
 <main>
 <div id="tab-home" class="tab-content active">
 <div class="card" style="background:#065f46;color:white;border:none;text-align:center;padding:14px">
-<h2 style="font-size:16px;font-weight:900"><i class="fa-solid fa-crown" style="color:#fbbf24"></i> 2026 Product Showcase & End of Year Celebration <i class="fa-solid fa-crown" style="color:#fbbf24"></i></h2>
+<h2 style="font-size:16px;font-weight:900"><i class="fa-solid fa-crown" style="color:#fbbf24"></i> Boskel Formidable 6 <i class="fa-solid fa-crown" style="color:#fbbf24"></i></h2>
 <p style="font-size:10px;color:#a7f3d0;margin-top:4px">BNL PRODUCTS - Official Sales & Raffle Management Hub</p>
 </div>
 <div class="grid-3">
@@ -107,7 +107,23 @@ td{padding:10px;border-bottom:1px solid #f1f5f9;color:#334155;font-weight:500}
 <h2 style="font-size:14px;font-weight:bold;margin-bottom:12px"><i class="fa-solid fa-cart-plus" style="color:#059669"></i> Record New Sale - Boskel Formidable 6</h2>
 <div id="editSaleBanner" class="edit-mode-banner"><i class="fa-solid fa-pen-to-square"></i> EDIT MODE - Editing Sale: <span id="editSaleLabel"></span> - Update then Save Changes</div>
 <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px">
-<div><label>Select Product *</label><select id="saleProduct" onchange="onProductChange()" required><option value="" disabled selected>-- Choose --</option><option>Sorghum Mill</option><option>Stove</option><option>Briquette</option><option>Activated Charcoal</option><option>Bitter Leaf Soap</option><option>Other / Custom Product</option></select></div>
+<div><label>Select Product *</label>
+<select id="saleProduct" onchange="onProductChange()" required>
+<option value="" disabled selected>-- Choose --</option>
+<option>Sorghum meal 1kg</option>
+<option>Sorghum meal 2kg</option>
+<option>Sorghum meal 4kg</option>
+<option>Black Intense Activated charcoal soap 300g</option>
+<option>Black Intense Activated charcoal soap 100g</option>
+<option>Activated charcoal Powder 500g</option>
+<option>Bitterleaves</option>
+<option>Activated charcoal capsules</option>
+<option>Kels briquettes</option>
+<option>Ground ogbono mix 150g</option>
+<option>Ground egusi mix 150g</option>
+<option>Other / Custom Product</option>
+</select>
+</div>
 <div id="customProductBox" style="display:none"><label>Custom Product Name *</label><input type="text" id="customProductName"></div>
 <div><label>Unit Price (₦) *</label><input type="number" id="salePrice" min="0" placeholder="0.00" oninput="calculateTotal()" required></div>
 <div><label>Quantity *</label><input type="number" id="saleQty" min="1" value="1" oninput="calculateTotal()" required></div>
@@ -135,7 +151,23 @@ td{padding:10px;border-bottom:1px solid #f1f5f9;color:#334155;font-weight:500}
 <div id="editRaffleBanner" class="edit-mode-banner"><i class="fa-solid fa-pen-to-square"></i> EDIT MODE - Editing Ticket: <span id="editRaffleLabel"></span> - Update then Save Changes</div>
 <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px">
 <div><label>Participant Name *</label><input type="text" id="raffleName" placeholder="Enter full name" required></div>
-<div><label>Associated Purchase *</label><select id="raffleNote" onchange="onRaffleProductChange()" required><option value="" disabled selected>-- Select Item --</option><option>Sorghum Mill</option><option>Stove</option><option>Briquette</option><option>Activated Charcoal</option><option>Bitter Leaf Soap</option><option>General Entry / Visitor</option></select></div>
+<div><label>Associated Purchase *</label>
+<select id="raffleNote" onchange="onRaffleProductChange()" required>
+<option value="" disabled selected>-- Select Item --</option>
+<option>Sorghum meal 1kg</option>
+<option>Sorghum meal 2kg</option>
+<option>Sorghum meal 4kg</option>
+<option>Black Intense Activated charcoal soap 300g</option>
+<option>Black Intense Activated charcoal soap 100g</option>
+<option>Activated charcoal Powder 500g</option>
+<option>Bitterleaves</option>
+<option>Activated charcoal capsules</option>
+<option>Kels briquettes</option>
+<option>Ground ogbono mix 150g</option>
+<option>Ground egusi mix 150g</option>
+<option>General Entry / Visitor</option>
+</select>
+</div>
 <div><label>Amount (₦) *</label><input type="number" id="raffleAmount" min="0" placeholder="0.00" required></div>
 </div>
 <div style="display:flex;gap:8px;margin-top:12px">
@@ -254,8 +286,9 @@ const db=firebase.firestore();
 let currentUser=JSON.parse(localStorage.getItem('bnl_currentUser')||'null');
 let salesList=[],raffleList=[],usersList=[],auditList=[],currentTicketObject=null;
 let editingUserId=null, editingSaleId=null, editingRaffleId=null;
-const PRODUCT_PRICES={"Sorghum Mill":150000,"Stove":25000,"Briquette":3500,"Activated Charcoal":5000,"Bitter Leaf Soap":1500};
+const PRODUCT_PRICES={};
 const MODULES=["Dashboard","Sales","Raffle","Users","Audit","Reports"];
+
 function togglePassword(inputId, eyeId){
  const input=document.getElementById(inputId);
  const eye=document.getElementById(eyeId);
@@ -300,13 +333,16 @@ async function logAudit(action,moduleName,details,oldVal="",newVal=""){
  const entry={timestamp:new Date().toISOString(),dateStr:new Date().toISOString().split('T')[0],timeStr:new Date().toLocaleTimeString(),dateOnly:new Date().toLocaleDateString(),user:currentUser.username,action:action,module:moduleName,batchId:"BNL-"+Date.now(),details:details,oldValue:oldVal,newValue:newVal,ip:"web-"+Math.floor(Math.random()*10000),createdAt:firebase.firestore.FieldValue.serverTimestamp()};
  try{await db.collection("auditTrail").add(entry);}catch(e){}
 }
-function onProductChange(){const v=document.getElementById("saleProduct").value;const box=document.getElementById("customProductBox");if(v==="Other / Custom Product"){box.style.display="block"}else{box.style.display="none";if(PRODUCT_PRICES[v])document.getElementById("salePrice").value=PRODUCT_PRICES[v];}calculateTotal();}
+function onProductChange(){const v=document.getElementById("saleProduct").value;const box=document.getElementById("customProductBox");if(v==="Other / Custom Product"){box.style.display="block"}else{box.style.display="none";}calculateTotal();}
 function calculateTotal(){const p=parseFloat(document.getElementById("salePrice").value)||0;const q=parseInt(document.getElementById("saleQty").value)||1;document.getElementById("saleTotal").value="₦"+(p*q).toLocaleString('en-US',{minimumFractionDigits:2});}
-function onRaffleProductChange(){const v=document.getElementById("raffleNote").value; if(PRODUCT_PRICES[v]){document.getElementById("raffleAmount").value=PRODUCT_PRICES[v];} else if(v==="General Entry / Visitor"){document.getElementById("raffleAmount").value=0;} }
+function onRaffleProductChange(){}
+
 async function handleSaleSubmit(){
  const prodSel=document.getElementById("saleProduct").value;if(!prodSel)return alert("Select product");
  const prodName=prodSel==="Other / Custom Product"?document.getElementById("customProductName").value:prodSel;
  const price=parseFloat(document.getElementById("salePrice").value)||0;const qty=parseInt(document.getElementById("saleQty").value)||1;
+ if(!prodName) return alert("Enter custom product name");
+ if(price<=0) return alert("Enter unit price");
  const sale={productName:prodName,unitPrice:price,qty:qty,totalAmount:price*qty,customerName:document.getElementById("saleCustomer").value||"Walk-in",repName:currentUser.fullName,timestamp:new Date().toISOString(),timeStr:new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'}),dateStr:new Date().toISOString().split('T')[0],createdBy:currentUser.username};
  await db.collection("sales").add(sale);logAudit("Added","Sales",`Sale ${prodName} x${qty} ₦${price*qty} by ${currentUser.username}`,"",JSON.stringify(sale));alert("✅ Saved to cloud");
  resetSaleForm();
@@ -314,8 +350,9 @@ async function handleSaleSubmit(){
 function editSale(id){
  const s=salesList.find(x=>x.docId===id); if(!s) return;
  editingSaleId=id;
- document.getElementById("saleProduct").value=Object.keys(PRODUCT_PRICES).includes(s.productName)?s.productName:"Other / Custom Product";
- if(!Object.keys(PRODUCT_PRICES).includes(s.productName)){document.getElementById("customProductBox").style.display="block";document.getElementById("customProductName").value=s.productName;}
+ const knownOptions = ["Sorghum meal 1kg","Sorghum meal 2kg","Sorghum meal 4kg","Black Intense Activated charcoal soap 300g","Black Intense Activated charcoal soap 100g","Activated charcoal Powder 500g","Bitterleaves","Activated charcoal capsules","Kels briquettes","Ground ogbono mix 150g","Ground egusi mix 150g"];
+ document.getElementById("saleProduct").value=knownOptions.includes(s.productName)?s.productName:"Other / Custom Product";
+ if(!knownOptions.includes(s.productName)){document.getElementById("customProductBox").style.display="block";document.getElementById("customProductName").value=s.productName;}
  document.getElementById("salePrice").value=s.unitPrice;
  document.getElementById("saleQty").value=s.qty;
  document.getElementById("saleCustomer").value=s.customerName;
@@ -354,10 +391,10 @@ function refreshKPIs(){
  document.getElementById("kpi-revenue").innerText="₦"+total.toLocaleString();document.getElementById("kpi-tx").innerText=salesList.length+" transactions";
  document.getElementById("kpi-items").innerText=salesList.reduce((s,i)=>s+(i.qty||0),0);
  document.getElementById("kpi-raffle").innerText=raffleList.length;document.getElementById("kpi-latest").innerText=raffleList.length>0?`Latest: ${raffleList[0].ticketCode}`:"Latest: None";
- let revMap={};["Sorghum Mill","Stove","Briquette","Activated Charcoal","Bitter Leaf Soap"].forEach(p=>revMap[p]=0);salesList.forEach(s=>{if(!revMap[s.productName])revMap[s.productName]=0;revMap[s.productName]+=s.totalAmount;});
- const maxR=Math.max(...Object.values(revMap),1);document.getElementById("chart-revenue").innerHTML=Object.keys(revMap).map(k=>`<div style="margin-bottom:8px"><div style="display:flex;justify-content:space-between;font-size:11px;font-weight:bold;margin-bottom:4px"><span>${k}</span><span style="color:#059669">₦${revMap[k].toLocaleString()}</span></div><div style="background:#f1f5f9;border-radius:99px;height:12px;overflow:hidden"><div style="background:#059669;height:100%;width:${Math.min(100,(revMap[k]/maxR)*100)}%"></div></div></div>`).join('');
- let unitMap={};["Sorghum Mill","Stove","Briquette","Activated Charcoal","Bitter Leaf Soap"].forEach(p=>unitMap[p]=0);salesList.forEach(s=>{if(!unitMap[s.productName])unitMap[s.productName]=0;unitMap[s.productName]+=s.qty;});
- const maxU=Math.max(...Object.values(unitMap),1);document.getElementById("chart-units").innerHTML=Object.keys(unitMap).map(k=>`<div style="margin-bottom:8px"><div style="display:flex;justify-content:space-between;font-size:11px;font-weight:bold;margin-bottom:4px"><span>${k}</span><span style="color:#2563eb">${unitMap[k]} units</span></div><div style="background:#f1f5f9;border-radius:99px;height:12px;overflow:hidden"><div style="background:#2563eb;height:100%;width:${Math.min(100,(unitMap[k]/maxU)*100)}%"></div></div></div>`).join('');
+ let revMap={};salesList.forEach(s=>{if(!revMap[s.productName])revMap[s.productName]=0;revMap[s.productName]+=s.totalAmount;});
+ const maxR=Math.max(...Object.values(revMap),1);document.getElementById("chart-revenue").innerHTML=Object.keys(revMap).map(k=>`<div style="margin-bottom:8px"><div style="display:flex;justify-content:space-between;font-size:11px;font-weight:bold;margin-bottom:4px"><span>${k}</span><span style="color:#059669">₦${revMap[k].toLocaleString()}</span></div><div style="background:#f1f5f9;border-radius:99px;height:12px;overflow:hidden"><div style="background:#059669;height:100%;width:${Math.min(100,(revMap[k]/maxR)*100)}%"></div></div></div>`).join('')||"<div style='font-size:11px;color:#94a3b8'>No sales yet</div>";
+ let unitMap={};salesList.forEach(s=>{if(!unitMap[s.productName])unitMap[s.productName]=0;unitMap[s.productName]+=s.qty;});
+ const maxU=Math.max(...Object.values(unitMap),1);document.getElementById("chart-units").innerHTML=Object.keys(unitMap).map(k=>`<div style="margin-bottom:8px"><div style="display:flex;justify-content:space-between;font-size:11px;font-weight:bold;margin-bottom:4px"><span>${k}</span><span style="color:#2563eb">${unitMap[k]} units</span></div><div style="background:#f1f5f9;border-radius:99px;height:12px;overflow:hidden"><div style="background:#2563eb;height:100%;width:${Math.min(100,(unitMap[k]/maxU)*100)}%"></div></div></div>`).join('')||"<div style='font-size:11px;color:#94a3b8'>No sales yet</div>";
 }
 function renderSales(){
  const q=(document.getElementById("salesSearchInput").value||"").toLowerCase();
@@ -366,6 +403,7 @@ function renderSales(){
  body.innerHTML=filtered.map(s=>`<tr><td>${s.timeStr||'-'}</td><td style="font-weight:bold">${s.productName}</td><td style="text-align:center">${s.qty}</td><td style="font-weight:900;color:#059669">₦${(s.totalAmount||0).toLocaleString()}</td><td>${s.customerName}</td><td>${s.repName}</td><td style="white-space:nowrap"><button class="btn-edit" onclick="editSale('${s.docId}')">Edit</button> <button onclick="deleteSale('${s.docId}')" class="btn-danger">Delete</button></td></tr>`).join('')||"<tr><td colspan='7' style='text-align:center;color:#94a3b8'>No sales yet</td></tr>";
 }
 async function deleteSale(id){if(!confirm("Delete this sale from cloud?"))return;const old=salesList.find(x=>x.docId===id);await db.collection("sales").doc(id).delete();logAudit("Deleted","Sales",`Deleted sale ${old.productName} ₦${old.totalAmount} by ${currentUser.username}`,JSON.stringify(old),"");if(editingSaleId===id)resetSaleForm();}
+
 async function handleRaffleSubmit(){
  const name=document.getElementById("raffleName").value.trim();if(!name)return alert("Enter participant name");
  const item=document.getElementById("raffleNote").value; if(!item) return alert("Select purchase");
