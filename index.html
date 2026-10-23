@@ -51,6 +51,10 @@ td{padding:10px;border-bottom:1px solid #f1f5f9;color:#334155;font-weight:500}
 .report-card{border-left:4px solid #059669}
 .report-card.raffle{border-left-color:#d97706}
 .report-card.summary{border-left-color:#7c3aed}
+/* SMART BANNER STYLE - REDUCED WIDTH */
+.smart-banner{background:#0a5c36;color:white;border:none;text-align:center;padding:10px 18px;border-radius:18px;max-width:420px;margin:0 auto 16px auto;box-shadow:0 4px 12px rgba(0,0,0,0.15);line-height:1.3}
+.smart-banner h2{font-size:15px;font-weight:800;letter-spacing:0.2px}
+.smart-banner p{font-size:10px;color:#a7f3d0;margin-top:4px}
 @media print{
   body *{visibility:hidden}
   #printableReport, #printableReport *, #printableTicketArea, #printableTicketArea *{visibility:visible}
@@ -89,9 +93,10 @@ td{padding:10px;border-bottom:1px solid #f1f5f9;color:#334155;font-weight:500}
 
 <main>
 <div id="tab-home" class="tab-content active">
-<div class="card" style="background:#0a5c36;color:white;border:none;text-align:center;padding:16px;border-radius:16px">
-<h2 style="font-size:18px;font-weight:800">2026 Product Showcase & End of Year Celebration</h2>
-<p id="userAccessInfo" style="font-size:11px;color:#a7f3d0;margin-top:6px"></p>
+<!-- REDUCED WIDTH SMART BANNER -->
+<div class="smart-banner">
+<h2>2026 Product Showcase & End of Year Celebration</h2>
+<p id="userAccessInfo"></p>
 </div>
 <div class="grid-3">
 <div class="kpi-card"><div class="kpi-title">Total Revenue</div><div class="kpi-value" id="kpi-revenue">₦0</div><div class="kpi-sub" id="kpi-tx">0 transactions</div></div>
@@ -229,9 +234,10 @@ td{padding:10px;border-bottom:1px solid #f1f5f9;color:#334155;font-weight:500}
 <div id="tab-reports" class="tab-content">
 <div id="reportsAccessDenied" class="access-denied" style="display:none"><h3>🚫 Access Denied</h3><p>You don't have access to Reports module.</p></div>
 <div id="reportsContent">
-<div class="card" style="background:#0a5c36;color:white;border:none;text-align:center;padding:16px;border-radius:16px">
-<h2 style="font-size:18px;font-weight:800"><i class="fa-solid fa-chart-bar"></i> Reports Module - 2026 Product Showcase & End of Year Celebration</h2>
-<p style="font-size:11px;color:#a7f3d0;margin-top:4px">Sales & Raffle Detail Reports Only - Audit is in Audit Module</p>
+<!-- REDUCED WIDTH SMART BANNER FOR REPORTS TOO -->
+<div class="smart-banner">
+<h2><i class="fa-solid fa-chart-bar"></i> Reports Module</h2>
+<p>2026 Product Showcase & End of Year Celebration - Sales & Raffle Only</p>
 </div>
 
 <div class="grid-3">
@@ -243,7 +249,6 @@ td{padding:10px;border-bottom:1px solid #f1f5f9;color:#334155;font-weight:500}
 <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px">
 <div class="card report-card summary">
 <h3 style="font-size:13px;font-weight:bold;margin-bottom:10px"><i class="fa-solid fa-file-invoice" style="color:#7c3aed"></i> Summary Report</h3>
-<p style="font-size:11px;color:#64748b;margin-bottom:10px">Overall event summary</p>
 <div id="report-summary-breakdown"></div>
 <button class="btn btn-purple" style="width:100%;margin-top:12px" onclick="printHomeReport()"><i class="fa-solid fa-print"></i> Print Summary Detail Report</button>
 </div>
@@ -340,13 +345,13 @@ function applyAccessControl(){
  if(!currentUser) return;
  const isAdmin=currentUser.role==="Admin";
  document.getElementById("accessBadge").innerText=isAdmin?"Admin - Full Access":`Role: ${currentUser.role}`;
- document.getElementById("userAccessInfo").innerText=isAdmin?"Admin - You have full access to all modules":"Your access: "+Object.keys(currentUser.access||{}).join(", ")||"No modules assigned";
+ document.getElementById("userAccessInfo").innerText=isAdmin?"Full Access":`Your access: ${Object.keys(currentUser.access||{}).join(", ")}`;
  
  const permDiv=document.getElementById("myPermissions");
  if(isAdmin){
    permDiv.innerHTML=MODULES.map(m=>`<span style="background:#065f46;color:white;padding:4px 10px;border-radius:20px;font-size:10px;font-weight:bold">${m}: Add/Edit</span>`).join('');
  } else {
-   permDiv.innerHTML=Object.keys(currentUser.access||{}).map(m=>`<span style="background:${currentUser.access[m]==='Add/Edit'?'#dcfce7':'#fef3c7'};color:${currentUser.access[m]==='Add/Edit'?'#065f46':'#92400e'};padding:4px 10px;border-radius:20px;font-size:10px;font-weight:bold;border:1px solid ${currentUser.access[m]==='Add/Edit'?'#16a34a':'#fbbf24'}">${m}: ${currentUser.access[m]}</span>`).join('') || '<span style="color:#dc2626">No access granted - Contact Admin</span>';
+   permDiv.innerHTML=Object.keys(currentUser.access||{}).map(m=>`<span style="background:${currentUser.access[m]==='Add/Edit'?'#dcfce7':'#fef3c7'};color:${currentUser.access[m]==='Add/Edit'?'#065f46':'#92400e'};padding:4px 10px;border-radius:20px;font-size:10px;font-weight:bold;border:1px solid ${currentUser.access[m]==='Add/Edit'?'#16a34a':'#fbbf24'}">${m}: ${currentUser.access[m]}</span>`).join('') || '<span style="color:#dc2626">No access granted</span>';
  }
 
  const navMap={"Dashboard":"mobile-tab-home","Sales":"mobile-tab-sales","Raffle":"mobile-tab-raffle","Reports":"mobile-tab-reports","Users":"mobile-tab-users","Audit":"mobile-tab-audit"};
@@ -531,14 +536,12 @@ async function deleteRaffle(id){
  if(!confirm("Delete ticket?"))return;const old=raffleList.find(x=>x.docId===id);await db.collection("raffles").doc(id).delete();logAudit("Deleted","Raffle",`Deleted ticket ${old.ticketCode}`,JSON.stringify(old),"");if(editingRaffleId===id)resetRaffleForm();}
 function printCurrentTicket(){if(!currentTicketObject)return;document.getElementById("printTicketCode").innerText=currentTicketObject.ticketCode;document.getElementById("printName").innerText=currentTicketObject.participantName;document.getElementById("printItem").innerText="Sorghum meal 1kg";document.getElementById("printAmount").innerText="1,000";document.getElementById("printRep").innerText=currentTicketObject.repName;document.getElementById("printDate").innerText=currentTicketObject.dateStr;document.getElementById("printableTicketArea").style.display="block";document.getElementById("printableReport").style.display="none";window.print();setTimeout(()=>{document.getElementById("printableTicketArea").style.display="none";},500);}
 
-// FIXED USERS MODULE - RESTORED EDIT/DELETE
 function buildAccessGrid(){const grid=document.getElementById("accessGrid");grid.innerHTML=MODULES.map(m=>`<div class="access-item"><input type="checkbox" id="acc_${m}" value="${m}"><label style="margin:0" for="acc_${m}">${m}</label><select id="perm_${m}" style="margin-left:auto;width:90px;padding:4px"><option>Add/Edit</option><option>View Only</option></select></div>`).join('');}
 function setAccessAll(){MODULES.forEach(m=>{document.getElementById("acc_"+m).checked=true;document.getElementById("perm_"+m).value="Add/Edit";});}
 function clearAccess(){MODULES.forEach(m=>document.getElementById("acc_"+m).checked=false);}
 function setViewOnly(){MODULES.forEach(m=>{document.getElementById("acc_"+m).checked=true;document.getElementById("perm_"+m).value="View Only";});}
 function getAccessObj(){const obj={};MODULES.forEach(m=>{if(document.getElementById("acc_"+m).checked){obj[m]=document.getElementById("perm_"+m).value;}});return obj;}
 async function issueUser(){
- // Only Admin or Users Add/Edit can create users
  if(!canEdit("Users") && currentUser.role!=="Admin") return alert("🚫 Access Denied - Only Admin or Users Add/Edit can create users");
  const full=document.getElementById("uFullName").value.trim();const user=document.getElementById("uUsername").value.trim();const pass=document.getElementById("uPassword").value.trim();const role=document.getElementById("uRole").value;const status=document.getElementById("uStatus").value;const access=getAccessObj();
  if(!full||!user||!pass||!role)return alert("Fill Full Name, Username, Password, Role");if(Object.keys(access).length===0) return alert("⚠️ Select at least ONE module access for this user!");
@@ -547,7 +550,6 @@ async function issueUser(){
  await db.collection("users").add(data);logAudit("Added","Users",`Created user ${user} role ${role} with access: ${Object.keys(access).join(',')}`,"",JSON.stringify(data));alert(`✅ User issued: ${uid}\nAccess: ${Object.keys(access).join(', ')}`);resetUserForm();
 }
 function editUser(id){
- // FIXED - Always allow Admin, and check Users permission
  if(!hasModuleAccess("Users")) return alert("No access to Users module");
  if(!canEdit("Users") && currentUser.role!=="Admin") return alert("🚫 View Only - Cannot edit users");
  const u=usersList.find(x=>x.docId===id); if(!u) return;
@@ -602,7 +604,6 @@ function resetUserForm(){
 }
 function renderUsers(){
  const body=document.getElementById("usersTableBody");
- // FIXED: Admin always can edit/delete, others based on permission
  const can = hasModuleAccess("Users") && (canEdit("Users") || currentUser.role==="Admin");
  body.innerHTML=usersList.map(u=>`<tr><td style="font-size:9px;font-weight:bold">${u.userId}</td><td>${u.fullName}</td><td style="font-weight:bold">${u.username}</td><td>${u.password.slice(0,2)}•••••<br><span style="font-size:9px;color:#2563eb;cursor:pointer" onclick="alert('Password: ${u.password}')">Show</span></td><td><span style="background:#065f46;color:white;padding:2px 6px;border-radius:10px;font-size:9px">${u.role}</span></td><td style="font-size:9px">${Object.keys(u.access||{}).map(k=>`<span style="background:${u.access[k]==='Add/Edit'?'#dcfce7':'#fef3c7'};padding:1px 4px;border-radius:6px;margin:1px;display:inline-block;border:1px solid ${u.access[k]==='Add/Edit'?'#16a34a':'#fbbf24'}">${k}: ${u.access[k]}</span>`).join('')}</td><td><span style="background:${u.status==='Active'?'#dcfce7':'#fee2e2'};padding:2px 6px;border-radius:10px;font-size:9px">${u.status}</span></td><td style="white-space:nowrap">${can?`<button class="btn-edit" onclick="editUser('${u.docId}')">Edit</button> <button class="btn-danger" onclick="delUser('${u.docId}')">Del</button>`:`<span style="color:#94a3b8;font-size:10px">View Only</span>`}</td></tr>`).join('')||"<tr><td colspan='8' style='text-align:center;color:#94a3b8'>No users yet</td></tr>";
  if(!editingUserId){ document.getElementById("uId").value="USER-"+new Date().toISOString().slice(0,10).replace(/-/g,'')+"-"+String(usersList.length+1).padStart(3,'0'); }
