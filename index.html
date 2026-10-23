@@ -31,7 +31,7 @@ input:focus,select:focus{border-color:#059669;box-shadow:0 0 0 2px rgba(5,150,10
 .btn:hover{background:#047857}
 .btn-amber{background:#d97706}.btn-amber:hover{background:#b45309}
 .btn-red{background:#dc2626}.btn-sm{padding:5px 10px;font-size:10px}
-.btn-edit{background:#2563eb;color:white;padding:4px 8px;font-size:10px;border-radius:4px;border:none;cursor:pointer;font-weight:bold}
+.btn-blue{background:#2563eb}.btn-edit{background:#2563eb;color:white;padding:4px 8px;font-size:10px;border-radius:4px;border:none;cursor:pointer;font-weight:bold}
 .btn-danger{background:#dc2626;color:white;padding:4px 8px;font-size:10px;border-radius:4px;border:none;cursor:pointer;font-weight:bold}
 .table-container{overflow-x:auto;margin-top:12px}
 table{width:100%;border-collapse:collapse;text-align:left;font-size:11px}
@@ -48,24 +48,24 @@ td{padding:10px;border-bottom:1px solid #f1f5f9;color:#334155;font-weight:500}
 #loginPage{position:fixed;inset:0;background:#065f46;display:flex;align-items:center;justify-content:center;z-index:100;padding:16px}
 .login-card{background:white;border-radius:16px;padding:28px;width:100%;max-width:380px;box-shadow:0 20px 40px rgba(0,0,0,0.25)}
 .login-logo{background:#065f46;color:white;font-weight:900;padding:8px 12px;border-radius:8px;display:inline-block;font-size:18px}
+.edit-mode-banner{display:none;background:#fef3c7;border:1px solid #fbbf24;color:#92400e;padding:8px 12px;border-radius:8px;font-size:11px;font-weight:bold;margin-bottom:12px}
+.edit-mode-banner.active{display:block}
 @media print{body *{visibility:hidden}#printableTicketArea,#printableTicketArea *{visibility:visible}#printableTicketArea{position:absolute;left:0;top:0;width:100%}}
 </style>
 </head>
 <body>
 
-<!-- LOGIN - BNL THEME -->
 <div id="loginPage">
 <div class="login-card">
-<div style="text-align:center;margin-bottom:16px"><div class="login-logo">BNL</div><h2 style="font-weight:900;margin-top:10px;color:#065f46">BNL PRODUCTS</h2><p style="font-size:11px;color:#64748b">1-DAY EVENT SALES & RAFFLE HUB</p></div>
+<div style="text-align:center;margin-bottom:16px"><div class="login-logo">BNL</div><h2 style="font-weight:900;margin-top:10px;color:#065f46">BNL PRODUCTS</h2><p style="font-size:11px;color:#64748b">SALES & RAFFLE HUB - CLOUD LIVE</p></div>
 <div id="loginError" style="color:#dc2626;font-size:11px;margin-bottom:10px;display:none;background:#fee2e2;padding:8px;border-radius:6px"></div>
 <label>Username *</label><input id="loginUser" placeholder="admin">
 <label>Password *</label><input id="loginPass" type="password" placeholder="••••••••">
 <button class="btn" style="width:100%;margin-top:12px;padding:12px" onclick="handleLogin()"><i class="fa-solid fa-right-to-bracket"></i> Sign In - BNL Cloud</button>
-<p style="font-size:10px;color:#94a3b8;margin-top:12px;text-align:center">Default: admin / admin<br>First login will auto-create admin</p>
+<p style="font-size:10px;color:#94a3b8;margin-top:12px;text-align:center">Default: admin / admin</p>
 </div>
 </div>
 
-<!-- APP - BNL THEME -->
 <div id="app" style="display:none">
 <header>
 <div class="header-container">
@@ -79,7 +79,6 @@ td{padding:10px;border-bottom:1px solid #f1f5f9;color:#334155;font-weight:500}
 </header>
 
 <main>
-<!-- HOME -->
 <div id="tab-home" class="tab-content active">
 <div class="grid-3">
 <div class="kpi-card"><div class="kpi-title">Total Revenue</div><div class="kpi-value" id="kpi-revenue">₦0</div><div class="kpi-sub" id="kpi-tx">0 transactions</div></div>
@@ -92,13 +91,12 @@ td{padding:10px;border-bottom:1px solid #f1f5f9;color:#334155;font-weight:500}
 </div>
 </div>
 
-<!-- SALES -->
 <div id="tab-sales" class="tab-content">
 <div class="card">
 <h2 style="font-size:14px;font-weight:bold;margin-bottom:12px"><i class="fa-solid fa-cart-plus" style="color:#059669"></i> Record New Sale</h2>
 <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px">
 <div><label>Select Product *</label><select id="saleProduct" onchange="onProductChange()" required><option value="" disabled selected>-- Choose --</option><option>Sorghum Mill</option><option>Stove</option><option>Briquette</option><option>Activated Charcoal</option><option>Bitter Leaf Soap</option><option>Other / Custom Product</option></select></div>
-<div id="customProductBox" style="display:none"><label>Custom Product Name *</label><input type="text" id="customProductName" placeholder="e.g. Special Package"></div>
+<div id="customProductBox" style="display:none"><label>Custom Product Name *</label><input type="text" id="customProductName"></div>
 <div><label>Unit Price (₦) *</label><input type="number" id="salePrice" min="0" placeholder="0.00" oninput="calculateTotal()" required></div>
 <div><label>Quantity *</label><input type="number" id="saleQty" min="1" value="1" oninput="calculateTotal()" required></div>
 <div><label>Total Price (₦)</label><input type="text" id="saleTotal" readonly value="₦0.00" style="background:#f8fafc;font-weight:bold;color:#059669"></div>
@@ -115,7 +113,6 @@ td{padding:10px;border-bottom:1px solid #f1f5f9;color:#334155;font-weight:500}
 </div>
 </div>
 
-<!-- RAFFLE -->
 <div id="tab-raffle" class="tab-content">
 <div class="card">
 <h2 style="font-size:14px;font-weight:bold;margin-bottom:12px"><i class="fa-solid fa-ticket" style="color:#d97706"></i> Issue Raffle Ticket</h2>
@@ -140,13 +137,16 @@ td{padding:10px;border-bottom:1px solid #f1f5f9;color:#334155;font-weight:500}
 </div>
 </div>
 
-<!-- USERS - BNL THEME -->
+<!-- USERS WITH SAVE BUTTON -->
 <div id="tab-users" class="tab-content">
 <div class="card">
 <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">
 <h2 style="font-size:14px;font-weight:bold"><i class="fa-solid fa-users" style="color:#065f46"></i> Users Management</h2>
 <div style="display:flex;gap:6px"><button class="btn btn-sm" onclick="exportUsers()">Export All</button><button class="btn btn-red btn-sm" onclick="clearUsersConfirm()">Wipe Data</button></div>
 </div>
+
+<div id="editModeBanner" class="edit-mode-banner"><i class="fa-solid fa-pen-to-square"></i> EDIT MODE - Editing: <span id="editUserLabel"></span> - Make changes then click Save Changes</div>
+
 <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-top:12px">
 <div><label>User ID</label><input id="uId" readonly></div>
 <div><label>Full Name *</label><input id="uFullName" placeholder="John Doe"></div>
@@ -159,12 +159,18 @@ td{padding:10px;border-bottom:1px solid #f1f5f9;color:#334155;font-weight:500}
 <div style="display:flex;gap:6px;flex-wrap:wrap;margin:6px 0"><button class="btn btn-sm" onclick="setAccessAll()">Select All - Add/Edit</button><button class="btn btn-sm" style="background:#cbd5e1;color:#334155" onclick="clearAccess()">Clear All</button><button class="btn btn-sm" style="background:#e2e8f0;color:#334155" onclick="setViewOnly()">All View Only</button></div>
 <div class="access-grid" id="accessGrid"></div>
 <label>Notes</label><textarea id="uNotes" rows="2" placeholder="Optional notes"></textarea>
-<button class="btn" style="margin-top:12px;width:100%" onclick="issueUser()"><i class="fa-solid fa-plus"></i> Issue User - Cloud Save</button>
+
+<!-- BUTTONS - ISSUE vs SAVE -->
+<div style="display:flex;gap:8px;margin-top:12px">
+<button id="issueUserBtn" class="btn" style="flex:1" onclick="issueUser()"><i class="fa-solid fa-plus"></i> Issue User - Cloud Save</button>
+<button id="saveUserBtn" class="btn btn-blue" style="flex:1;display:none" onclick="saveEditedUser()"><i class="fa-solid fa-floppy-disk"></i> Save Changes - Update Cloud</button>
+<button id="cancelEditBtn" class="btn" style="flex:0.5;display:none;background:#64748b" onclick="cancelEditUser()"><i class="fa-solid fa-xmark"></i> Cancel</button>
+</div>
+
 </div>
 <div class="card"><div class="table-container"><table><thead><tr><th>User ID</th><th>Full Name</th><th>Username</th><th>Password</th><th>Role</th><th>Access</th><th>Status</th><th>Action</th></tr></thead><tbody id="usersTableBody"></tbody></table></div></div>
 </div>
 
-<!-- AUDIT TRAIL - BNL THEME -->
 <div id="tab-audit" class="tab-content">
 <div class="card">
 <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">
@@ -176,12 +182,11 @@ td{padding:10px;border-bottom:1px solid #f1f5f9;color:#334155;font-weight:500}
 <select id="auditModuleFilter" onchange="renderAudit()"><option value="">All Modules</option><option>Sales</option><option>Raffle</option><option>Users</option><option>Authentication</option></select>
 <select id="auditActionFilter" onchange="renderAudit()"><option value="">All Actions</option><option>Added</option><option>Edited</option><option>Deleted</option><option>Login</option><option>Logout</option></select>
 <select id="auditUserFilter" onchange="renderAudit()"><option value="">All Users</option></select>
-<input type="date" id="auditFrom"><input type="date" id="auditTo">
 </div>
 <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px">
-<button class="btn btn-sm" style="background:#0f172a" onclick="exportAuditCSV()"><i class="fa-solid fa-file-csv"></i> Export CSV</button>
-<button class="btn btn-sm" style="background:#0f172a" onclick="exportAuditJSON()"><i class="fa-solid fa-file-code"></i> Export JSON</button>
-<button class="btn btn-red btn-sm" onclick="clearAuditTrail()"><i class="fa-solid fa-trash"></i> Clear Audit Trail</button>
+<button class="btn btn-sm" style="background:#0f172a" onclick="exportAuditCSV()">Export CSV</button>
+<button class="btn btn-sm" style="background:#0f172a" onclick="exportAuditJSON()">Export JSON</button>
+<button class="btn btn-red btn-sm" onclick="clearAuditTrail()">Clear Audit Trail</button>
 <button class="btn btn-sm" style="background:#e2e8f0;color:#334155" onclick="resetAuditFilters()">Reset Filters</button>
 </div>
 <div class="grid-3" style="grid-template-columns:repeat(4,1fr)">
@@ -227,6 +232,7 @@ firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
 let currentUser=JSON.parse(localStorage.getItem('bnl_currentUser')||'null');
 let salesList=[],raffleList=[],usersList=[],auditList=[],currentTicketObject=null;
+let editingUserId=null; // NEW - track edit
 const PRODUCT_PRICES={"Sorghum Mill":150000,"Stove":25000,"Briquette":3500,"Activated Charcoal":5000,"Bitter Leaf Soap":1500};
 const MODULES=["Dashboard","Sales","Raffle","Users","Audit","Reports"];
 
@@ -265,7 +271,6 @@ function switchTab(name){
  document.querySelectorAll('.nav-item').forEach(el=>el.classList.remove('active'));
  const btn=document.getElementById('mobile-tab-'+name); if(btn)btn.classList.add('active');
 }
-
 async function logAudit(action,moduleName,details,oldVal="",newVal=""){
  if(!currentUser)return;
  const entry={timestamp:new Date().toISOString(),dateStr:new Date().toISOString().split('T')[0],timeStr:new Date().toLocaleTimeString(),dateOnly:new Date().toLocaleDateString(),user:currentUser.username,action:action,module:moduleName,batchId:"BNL-"+Date.now(),details:details,oldValue:oldVal,newValue:newVal,ip:"web-"+Math.floor(Math.random()*10000),createdAt:firebase.firestore.FieldValue.serverTimestamp()};
@@ -317,27 +322,81 @@ function renderRaffle(){
 async function deleteRaffle(id){if(!confirm("Delete ticket?"))return;const old=raffleList.find(x=>x.docId===id);await db.collection("raffles").doc(id).delete();logAudit("Deleted","Raffle",`Deleted ticket ${old.ticketCode}`,JSON.stringify(old),"");}
 function printCurrentTicket(){if(!currentTicketObject)return;document.getElementById("printTicketCode").innerText=currentTicketObject.ticketCode;document.getElementById("printName").innerText=currentTicketObject.participantName;document.getElementById("printItem").innerText=currentTicketObject.itemNote;document.getElementById("printRep").innerText=currentTicketObject.repName;document.getElementById("printDate").innerText=currentTicketObject.dateStr;window.print();}
 
-// USERS
+// USERS WITH EDIT SAVE LOGIC
 function buildAccessGrid(){const grid=document.getElementById("accessGrid");grid.innerHTML=MODULES.map(m=>`<div class="access-item"><input type="checkbox" id="acc_${m}" value="${m}"><label style="margin:0" for="acc_${m}">${m}</label><select id="perm_${m}" style="margin-left:auto;width:90px;padding:4px"><option>Add/Edit</option><option>View Only</option></select></div>`).join('');}
 function setAccessAll(){MODULES.forEach(m=>{document.getElementById("acc_"+m).checked=true;document.getElementById("perm_"+m).value="Add/Edit";});}
 function clearAccess(){MODULES.forEach(m=>document.getElementById("acc_"+m).checked=false);}
 function setViewOnly(){MODULES.forEach(m=>{document.getElementById("acc_"+m).checked=true;document.getElementById("perm_"+m).value="View Only";});}
 function getAccessObj(){const obj={};MODULES.forEach(m=>{if(document.getElementById("acc_"+m).checked){obj[m]=document.getElementById("perm_"+m).value;}});return obj;}
+
 async function issueUser(){
  const full=document.getElementById("uFullName").value.trim();const user=document.getElementById("uUsername").value.trim();const pass=document.getElementById("uPassword").value.trim();const role=document.getElementById("uRole").value;const status=document.getElementById("uStatus").value;const access=getAccessObj();
  if(!full||!user||!pass||!role)return alert("Fill Full Name, Username, Password, Role");
  const uid="USER-"+new Date().toISOString().slice(0,10).replace(/-/g,'')+"-"+String(usersList.length+1).padStart(3,'0');
  const data={userId:uid,fullName:full,username:user,password:pass,role:role,status:status,access:access,notes:document.getElementById("uNotes").value,createdAt:new Date().toISOString(),createdBy:currentUser.username};
  await db.collection("users").add(data);logAudit("Added","Users",`Created user ${user} role ${role} by ${currentUser.username}`,"",JSON.stringify(data));alert("User issued: "+uid);
- document.getElementById("uFullName").value="";document.getElementById("uUsername").value="";document.getElementById("uPassword").value="";document.getElementById("uNotes").value="";
+ resetUserForm();
 }
+
+function editUser(id){
+ const u=usersList.find(x=>x.docId===id); if(!u) return;
+ editingUserId=id;
+ document.getElementById("uId").value=u.userId;
+ document.getElementById("uFullName").value=u.fullName;
+ document.getElementById("uUsername").value=u.username;
+ document.getElementById("uPassword").value=u.password;
+ document.getElementById("uRole").value=u.role;
+ document.getElementById("uStatus").value=u.status;
+ document.getElementById("uNotes").value=u.notes||"";
+ // access
+ MODULES.forEach(m=>{const cb=document.getElementById("acc_"+m); if(cb) cb.checked=false;});
+ Object.keys(u.access||{}).forEach(m=>{if(document.getElementById("acc_"+m)){document.getElementById("acc_"+m).checked=true;document.getElementById("perm_"+m).value=u.access[m];}});
+ // show edit mode
+ document.getElementById("editModeBanner").classList.add("active");
+ document.getElementById("editUserLabel").innerText=u.username+" ("+u.fullName+")";
+ document.getElementById("issueUserBtn").style.display="none";
+ document.getElementById("saveUserBtn").style.display="inline-flex";
+ document.getElementById("cancelEditBtn").style.display="inline-flex";
+ switchTab('users');
+ window.scrollTo({top:0,behavior:'smooth'});
+}
+
+async function saveEditedUser(){
+ if(!editingUserId) return alert("No user selected for edit");
+ const full=document.getElementById("uFullName").value.trim();
+ const user=document.getElementById("uUsername").value.trim();
+ const pass=document.getElementById("uPassword").value.trim();
+ const role=document.getElementById("uRole").value;
+ const status=document.getElementById("uStatus").value;
+ const access=getAccessObj();
+ if(!full||!user||!pass||!role) return alert("Fill all required fields");
+ const oldUser=usersList.find(x=>x.docId===editingUserId);
+ const updatedData={fullName:full,username:user,password:pass,role:role,status:status,access:access,notes:document.getElementById("uNotes").value,updatedAt:new Date().toISOString(),updatedBy:currentUser.username};
+ await db.collection("users").doc(editingUserId).update(updatedData);
+ logAudit("Edited","Users",`Edited user ${user} - role changed ${oldUser.role}=>${role} by ${currentUser.username}`,JSON.stringify(oldUser),JSON.stringify(updatedData));
+ alert("✅ User updated successfully in cloud!");
+ resetUserForm();
+}
+
+function cancelEditUser(){ resetUserForm(); }
+
+function resetUserForm(){
+ editingUserId=null;
+ document.getElementById("uId").value="USER-"+new Date().toISOString().slice(0,10).replace(/-/g,'')+"-"+String(usersList.length+1).padStart(3,'0');
+ document.getElementById("uFullName").value="";document.getElementById("uUsername").value="";document.getElementById("uPassword").value="";document.getElementById("uRole").value="";document.getElementById("uStatus").value="Active";document.getElementById("uNotes").value="";
+ clearAccess();
+ document.getElementById("editModeBanner").classList.remove("active");
+ document.getElementById("issueUserBtn").style.display="inline-flex";
+ document.getElementById("saveUserBtn").style.display="none";
+ document.getElementById("cancelEditBtn").style.display="none";
+}
+
 function renderUsers(){
  const body=document.getElementById("usersTableBody");
  body.innerHTML=usersList.map(u=>`<tr><td style="font-size:9px;font-weight:bold">${u.userId}</td><td>${u.fullName}</td><td style="font-weight:bold">${u.username}</td><td>${u.password.slice(0,2)}•••••<br><span style="font-size:9px;color:#2563eb;cursor:pointer" onclick="alert('Password: ${u.password}')">Show</span></td><td><span style="background:#065f46;color:white;padding:2px 6px;border-radius:10px;font-size:9px">${u.role}</span></td><td style="font-size:9px">${Object.keys(u.access||{}).map(k=>`<span style="background:#dcfce7;padding:1px 4px;border-radius:6px;margin:1px;display:inline-block">${k}</span>`).join('')}</td><td><span style="background:${u.status==='Active'?'#dcfce7':'#fee2e2'};padding:2px 6px;border-radius:10px;font-size:9px">${u.status}</span></td><td><button class="btn-edit" onclick="editUser('${u.docId}')">Edit</button> <button class="btn-danger" onclick="delUser('${u.docId}')">Del</button></td></tr>`).join('')||"<tr><td colspan='8' style='text-align:center;color:#94a3b8'>No users yet</td></tr>";
- document.getElementById("uId").value="USER-"+new Date().toISOString().slice(0,10).replace(/-/g,'')+"-"+String(usersList.length+1).padStart(3,'0');
+ if(!editingUserId){ document.getElementById("uId").value="USER-"+new Date().toISOString().slice(0,10).replace(/-/g,'')+"-"+String(usersList.length+1).padStart(3,'0'); }
 }
-async function delUser(id){if(!confirm("Delete user?"))return;const old=usersList.find(x=>x.docId===id);if(old.username==="admin")return alert("Cannot delete admin");await db.collection("users").doc(id).delete();logAudit("Deleted","Users",`Deleted user ${old.username} by ${currentUser.username}`,JSON.stringify(old),"");}
-function editUser(id){const u=usersList.find(x=>x.docId===id);document.getElementById("uFullName").value=u.fullName;document.getElementById("uUsername").value=u.username;document.getElementById("uPassword").value=u.password;document.getElementById("uRole").value=u.role;document.getElementById("uStatus").value=u.status;document.getElementById("uNotes").value=u.notes||"";Object.keys(u.access||{}).forEach(m=>{if(document.getElementById("acc_"+m)){document.getElementById("acc_"+m).checked=true;document.getElementById("perm_"+m).value=u.access[m];}});switchTab('users');}
+async function delUser(id){if(!confirm("Delete user?"))return;const old=usersList.find(x=>x.docId===id);if(old.username==="admin")return alert("Cannot delete admin");await db.collection("users").doc(id).delete();logAudit("Deleted","Users",`Deleted user ${old.username} by ${currentUser.username}`,JSON.stringify(old),"");if(editingUserId===id)resetUserForm();}
 function exportUsers(){const csv=["userId,fullName,username,role,status"].concat(usersList.map(u=>`${u.userId},${u.fullName},${u.username},${u.role},${u.status}`)).join("\n");downloadFile(csv,"bnl_users.csv");}
 function clearUsersConfirm(){if(!confirm("Wipe all users except admin?"))return;}
 
