@@ -32,9 +32,9 @@ input,select,textarea{width:100%;padding:10px;border:1px solid #cbd5e1;border-ra
 table{width:100%;border-collapse:collapse;text-align:left;font-size:11px}
 th{background:#f8fafc;color:#475569;font-weight:700;padding:10px;border-bottom:1px solid #e2e8f0;text-transform:uppercase;font-size:10px}
 td{padding:10px;border-bottom:1px solid #f1f5f9;color:#334155;font-weight:500}
-.bottom-nav{display:flex;position:fixed;bottom:0;left:0;right:0;background:white;border-top:1px solid #cbd5e1;z-index:40;justify-content:space-around;padding:6px 0;overflow-x:auto}
-.nav-item{background:none;border:none;display:flex;flex-direction:column;align-items:center;color:#64748b;font-size:8px;font-weight:600;cursor:pointer;gap:2px;min-width:48px}
-.nav-item.active{color:#059669;font-weight:bold}.nav-item i{font-size:16px}
+.bottom-nav{display:flex;position:fixed;bottom:0;left:0;right:0;background:white;border-top:1px solid #cbd5e1;z-index:40;justify-content:space-around;padding:8px 0 10px 0;overflow-x:auto}
+.nav-item{background:none;border:none;display:flex;flex-direction:column;align-items:center;color:#64748b;font-size:9px;font-weight:600;cursor:pointer;gap:3px;min-width:52px}
+.nav-item.active{color:#059669;font-weight:bold}.nav-item i{font-size:24px}
 .nav-item.hidden{display:none !important}
 .access-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px;margin-top:8px}
 .access-item{border:1px solid #e2e8f0;border-radius:8px;padding:8px;display:flex;align-items:center;gap:6px;font-size:11px;background:#f8fafc}
@@ -499,12 +499,11 @@ async function deleteRaffle(id){
  if(!confirm("Delete ticket?"))return;const old=raffleList.find(x=>x.docId===id);await db.collection("raffles").doc(id).delete();logAudit("Deleted","Raffle",`Deleted ticket ${old.ticketCode}`,JSON.stringify(old),"");if(editingRaffleId===id)resetRaffleForm();}
 function printCurrentTicket(){if(!currentTicketObject)return;document.getElementById("printTicketCode").innerText=currentTicketObject.ticketCode;document.getElementById("printName").innerText=currentTicketObject.participantName;document.getElementById("printItem").innerText="Sorghum meal 1kg";document.getElementById("printAmount").innerText="1,000";document.getElementById("printRep").innerText=currentTicketObject.repName;document.getElementById("printDate").innerText=currentTicketObject.dateStr;document.getElementById("printableTicketArea").style.display="block";document.getElementById("printableReport").style.display="none";window.print();setTimeout(()=>{document.getElementById("printableTicketArea").style.display="none";},500);}
 
-// === FIXED USERS MODULE ONLY ===
 function buildAccessGrid(){const grid=document.getElementById("accessGrid");grid.innerHTML=MODULES.map(m=>`<div class="access-item"><input type="checkbox" id="acc_${m}" value="${m}"><label style="margin:0" for="acc_${m}">${m}</label><select id="perm_${m}" style="margin-left:auto;width:90px;padding:4px"><option>Add/Edit</option><option>View Only</option></select></div>`).join('');}
 function setAccessAll(){MODULES.forEach(m=>{document.getElementById("acc_"+m).checked=true;document.getElementById("perm_"+m).value="Add/Edit";});}
 function clearAccess(){MODULES.forEach(m=>document.getElementById("acc_"+m).checked=false);}
 function setViewOnly(){MODULES.forEach(m=>{document.getElementById("acc_"+m).checked=true;document.getElementById("perm_"+m).value="View Only";});}
-function clearUserFormOnly(){ // Clear form data only - doesn't delete cloud users
+function clearUserFormOnly(){
   document.getElementById("uFullName").value="";
   document.getElementById("uUsername").value="";
   document.getElementById("uPassword").value="";
@@ -512,11 +511,10 @@ function clearUserFormOnly(){ // Clear form data only - doesn't delete cloud use
   document.getElementById("uStatus").value="Active";
   document.getElementById("uNotes").value="";
   clearAccess();
-  alert("✅ Form cleared - ready for new user");
+  alert("✅ Form cleared");
 }
 function getAccessObj(){const obj={};MODULES.forEach(m=>{if(document.getElementById("acc_"+m).checked){obj[m]=document.getElementById("perm_"+m).value;}});return obj;}
 async function issueUser(){
- // FIXED: Admin always allowed
  if(currentUser.role!=="Admin" && !canEdit("Users")){ alert("🚫 Only Admin can create users"); return; }
  const full=document.getElementById("uFullName").value.trim();const user=document.getElementById("uUsername").value.trim();const pass=document.getElementById("uPassword").value.trim();const role=document.getElementById("uRole").value;const status=document.getElementById("uStatus").value;const access=getAccessObj();
  if(!full||!user||!pass||!role){ alert("Fill Full Name, Username, Password, Role"); return; }
@@ -526,12 +524,11 @@ async function issueUser(){
  try{
    await db.collection("users").add(data);
    await logAudit("Added","Users",`Created user ${user} role ${role} with access: ${Object.keys(access).join(',')}`,"",JSON.stringify(data));
-   alert(`✅ User issued: ${uid}\nAccess: ${Object.keys(access).join(', ')}`);
+   alert(`✅ User issued: ${uid}`);
    resetUserForm();
  }catch(e){ alert("Error: "+e.message); }
 }
 function editUser(id){
- // FIXED: Admin always allowed to edit
  if(currentUser.role!=="Admin" && !canEdit("Users")){ alert("🚫 Only Admin can edit users"); return; }
  const u=usersList.find(x=>x.docId===id); if(!u){ alert("User not found"); return; }
  editingUserId=id;
@@ -556,7 +553,7 @@ function editUser(id){
 }
 async function saveEditedUser(){
  if(currentUser.role!=="Admin" && !canEdit("Users")){ alert("Only Admin can save"); return; }
- if(!editingUserId){ alert("No user selected for editing"); return; }
+ if(!editingUserId){ alert("No user selected"); return; }
  const full=document.getElementById("uFullName").value.trim();
  const user=document.getElementById("uUsername").value.trim();
  const pass=document.getElementById("uPassword").value.trim();
@@ -570,9 +567,9 @@ async function saveEditedUser(){
  try{
    await db.collection("users").doc(editingUserId).update(updatedData);
    await logAudit("Edited","Users",`Edited user ${user}`,JSON.stringify(oldUser),JSON.stringify(updatedData));
-   alert("✅ User updated successfully!");
+   alert("✅ User updated!");
    resetUserForm();
- }catch(e){ alert("Error updating: "+e.message); }
+ }catch(e){ alert("Error: "+e.message); }
 }
 function cancelEditUser(){ resetUserForm(); }
 function resetUserForm(){
@@ -595,25 +592,23 @@ function resetUserForm(){
 }
 function renderUsers(){
  const body=document.getElementById("usersTableBody");
- // FIXED: For Users module, Admin ALWAYS has full control
  const isAdmin = currentUser && currentUser.role==="Admin";
  const can = isAdmin ? true : (hasModuleAccess("Users") && canEdit("Users"));
  body.innerHTML=usersList.map(u=>`<tr><td style="font-size:9px;font-weight:bold">${u.userId}</td><td>${u.fullName}</td><td style="font-weight:bold">${u.username}</td><td>${u.password.slice(0,2)}•••••<br><span style="font-size:9px;color:#2563eb;cursor:pointer" onclick="alert('Password: ${u.password}')">Show</span></td><td><span style="background:#065f46;color:white;padding:2px 6px;border-radius:10px;font-size:9px">${u.role}</span></td><td style="font-size:9px">${Object.keys(u.access||{}).map(k=>`<span style="background:${u.access[k]==='Add/Edit'?'#dcfce7':'#fef3c7'};padding:1px 4px;border-radius:6px;margin:1px;display:inline-block;border:1px solid ${u.access[k]==='Add/Edit'?'#16a34a':'#fbbf24'}">${k}: ${u.access[k]}</span>`).join('')}</td><td><span style="background:${u.status==='Active'?'#dcfce7':'#fee2e2'};padding:2px 6px;border-radius:10px;font-size:9px">${u.status}</span></td><td style="white-space:nowrap">${can?`<button class="btn-edit" onclick="editUser('${u.docId}')">Edit</button> <button class="btn-danger" onclick="delUser('${u.docId}')">Del</button>`:`<span style="color:#94a3b8;font-size:10px">View Only</span>`}</td></tr>`).join('')||"<tr><td colspan='8' style='text-align:center;color:#94a3b8'>No users yet</td></tr>";
  if(!editingUserId){ document.getElementById("uId").value="USER-"+new Date().toISOString().slice(0,10).replace(/-/g,'')+"-"+String(usersList.length+1).padStart(3,'0'); }
 }
 async function delUser(id){
- // FIXED: Admin always allowed to delete
- if(currentUser.role!=="Admin" && !canEdit("Users")){ alert("🚫 Only Admin can delete users"); return; }
- if(!confirm("Delete this user? This cannot be undone."))return;
+ if(currentUser.role!=="Admin" && !canEdit("Users")){ alert("🚫 Only Admin can delete"); return; }
+ if(!confirm("Delete this user?"))return;
  const old=usersList.find(x=>x.docId===id);
  if(!old){ alert("User not found"); return; }
  if(old.username==="admin"){ alert("Cannot delete main admin"); return; }
  try{
    await db.collection("users").doc(id).delete();
-   await logAudit("Deleted","Users",`Deleted user ${old.username} by ${currentUser.username}`,JSON.stringify(old),"");
+   await logAudit("Deleted","Users",`Deleted user ${old.username}`,JSON.stringify(old),"");
    if(editingUserId===id)resetUserForm();
-   alert("✅ User deleted - "+old.username);
- }catch(e){ alert("Error deleting: "+e.message); }
+   alert("✅ User deleted");
+ }catch(e){ alert("Error: "+e.message); }
 }
 function updateUserFilter(){const sel=document.getElementById("auditUserFilter");if(!sel) return;const uniq=[...new Set(usersList.map(u=>u.username).concat(auditList.map(a=>a.user)))];sel.innerHTML="<option value=''>All Users</option>"+uniq.filter(Boolean).map(u=>`<option>${u}</option>`).join('');}
 
