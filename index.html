@@ -286,9 +286,20 @@ const db=firebase.firestore();
 let currentUser=JSON.parse(localStorage.getItem('bnl_currentUser')||'null');
 let salesList=[],raffleList=[],usersList=[],auditList=[],currentTicketObject=null;
 let editingUserId=null, editingSaleId=null, editingRaffleId=null;
-const PRODUCT_PRICES={};
+const PRODUCT_PRICES={
+"Sorghum meal 1kg":1000,
+"Sorghum meal 2kg":2000,
+"Sorghum meal 4kg":4000,
+"Black Intense Activated charcoal soap 300g":3000,
+"Black Intense Activated charcoal soap 100g":1000,
+"Activated charcoal Powder 500g":12000,
+"Bitterleaves":3000,
+"Activated charcoal capsules":5000,
+"Kels briquettes":7500,
+"Ground ogbono mix 150g":4500,
+"Ground egusi mix 150g":3500
+};
 const MODULES=["Dashboard","Sales","Raffle","Users","Audit","Reports"];
-
 function togglePassword(inputId, eyeId){
  const input=document.getElementById(inputId);
  const eye=document.getElementById(eyeId);
@@ -333,9 +344,9 @@ async function logAudit(action,moduleName,details,oldVal="",newVal=""){
  const entry={timestamp:new Date().toISOString(),dateStr:new Date().toISOString().split('T')[0],timeStr:new Date().toLocaleTimeString(),dateOnly:new Date().toLocaleDateString(),user:currentUser.username,action:action,module:moduleName,batchId:"BNL-"+Date.now(),details:details,oldValue:oldVal,newValue:newVal,ip:"web-"+Math.floor(Math.random()*10000),createdAt:firebase.firestore.FieldValue.serverTimestamp()};
  try{await db.collection("auditTrail").add(entry);}catch(e){}
 }
-function onProductChange(){const v=document.getElementById("saleProduct").value;const box=document.getElementById("customProductBox");if(v==="Other / Custom Product"){box.style.display="block"}else{box.style.display="none";}calculateTotal();}
+function onProductChange(){const v=document.getElementById("saleProduct").value;const box=document.getElementById("customProductBox");if(v==="Other / Custom Product"){box.style.display="block"}else{box.style.display="none";if(PRODUCT_PRICES[v]){document.getElementById("salePrice").value=PRODUCT_PRICES[v];}}calculateTotal();}
 function calculateTotal(){const p=parseFloat(document.getElementById("salePrice").value)||0;const q=parseInt(document.getElementById("saleQty").value)||1;document.getElementById("saleTotal").value="₦"+(p*q).toLocaleString('en-US',{minimumFractionDigits:2});}
-function onRaffleProductChange(){}
+function onRaffleProductChange(){const v=document.getElementById("raffleNote").value; if(PRODUCT_PRICES[v]){document.getElementById("raffleAmount").value=PRODUCT_PRICES[v];} else if(v==="General Entry / Visitor"){document.getElementById("raffleAmount").value=0;}}
 
 async function handleSaleSubmit(){
  const prodSel=document.getElementById("saleProduct").value;if(!prodSel)return alert("Select product");
@@ -350,7 +361,7 @@ async function handleSaleSubmit(){
 function editSale(id){
  const s=salesList.find(x=>x.docId===id); if(!s) return;
  editingSaleId=id;
- const knownOptions = ["Sorghum meal 1kg","Sorghum meal 2kg","Sorghum meal 4kg","Black Intense Activated charcoal soap 300g","Black Intense Activated charcoal soap 100g","Activated charcoal Powder 500g","Bitterleaves","Activated charcoal capsules","Kels briquettes","Ground ogbono mix 150g","Ground egusi mix 150g"];
+ const knownOptions = Object.keys(PRODUCT_PRICES);
  document.getElementById("saleProduct").value=knownOptions.includes(s.productName)?s.productName:"Other / Custom Product";
  if(!knownOptions.includes(s.productName)){document.getElementById("customProductBox").style.display="block";document.getElementById("customProductName").value=s.productName;}
  document.getElementById("salePrice").value=s.unitPrice;
