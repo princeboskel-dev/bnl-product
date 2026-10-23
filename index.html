@@ -50,7 +50,6 @@ td{padding:10px;border-bottom:1px solid #f1f5f9;color:#334155;font-weight:500}
 .login-logo{background:#065f46;color:white;font-weight:900;padding:8px 12px;border-radius:8px;display:inline-block;font-size:18px}
 .edit-mode-banner{display:none;background:#fef3c7;border:1px solid #fbbf24;color:#92400e;padding:8px 12px;border-radius:8px;font-size:11px;font-weight:bold;margin-bottom:12px}
 .edit-mode-banner.active{display:block}
-/* EYE ICON WRAPPER */
 .password-wrapper{position:relative;display:flex;align-items:center}
 .password-wrapper input{padding-right:40px}
 .eye-icon{position:absolute;right:10px;top:50%;transform:translateY(-50%);cursor:pointer;color:#64748b;background:none;border:none;font-size:16px;padding:4px}
@@ -99,9 +98,13 @@ td{padding:10px;border-bottom:1px solid #f1f5f9;color:#334155;font-weight:500}
 </div>
 </div>
 
+<!-- SALES WITH EDIT SAVE -->
 <div id="tab-sales" class="tab-content">
 <div class="card">
+<div style="display:flex;justify-content:space-between;align-items:center">
 <h2 style="font-size:14px;font-weight:bold;margin-bottom:12px"><i class="fa-solid fa-cart-plus" style="color:#059669"></i> Record New Sale</h2>
+</div>
+<div id="editSaleBanner" class="edit-mode-banner"><i class="fa-solid fa-pen-to-square"></i> EDIT MODE - Editing Sale: <span id="editSaleLabel"></span> - Update then Save Changes</div>
 <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px">
 <div><label>Select Product *</label><select id="saleProduct" onchange="onProductChange()" required><option value="" disabled selected>-- Choose --</option><option>Sorghum Mill</option><option>Stove</option><option>Briquette</option><option>Activated Charcoal</option><option>Bitter Leaf Soap</option><option>Other / Custom Product</option></select></div>
 <div id="customProductBox" style="display:none"><label>Custom Product Name *</label><input type="text" id="customProductName"></div>
@@ -110,7 +113,11 @@ td{padding:10px;border-bottom:1px solid #f1f5f9;color:#334155;font-weight:500}
 <div><label>Total Price (₦)</label><input type="text" id="saleTotal" readonly value="₦0.00" style="background:#f8fafc;font-weight:bold;color:#059669"></div>
 <div><label>Customer Name</label><input type="text" id="saleCustomer" placeholder="Walk-in"></div>
 </div>
-<button class="btn" style="width:100%;margin-top:12px" onclick="handleSaleSubmit()" id="saleBtn"><i class="fa-solid fa-check"></i> Submit Transaction - Cloud Save</button>
+<div style="display:flex;gap:8px;margin-top:12px">
+<button id="issueSaleBtn" class="btn" style="flex:1" onclick="handleSaleSubmit()"><i class="fa-solid fa-check"></i> Submit Transaction - Cloud Save</button>
+<button id="saveSaleBtn" class="btn btn-blue" style="flex:1;display:none" onclick="saveEditedSale()"><i class="fa-solid fa-floppy-disk"></i> Save Changes - Update Cloud</button>
+<button id="cancelSaleBtn" class="btn" style="flex:0.5;display:none;background:#64748b" onclick="cancelEditSale()"><i class="fa-solid fa-xmark"></i> Cancel</button>
+</div>
 </div>
 <div class="card">
 <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;border-bottom:1px solid #e2e8f0;padding-bottom:10px">
@@ -121,14 +128,20 @@ td{padding:10px;border-bottom:1px solid #f1f5f9;color:#334155;font-weight:500}
 </div>
 </div>
 
+<!-- RAFFLE WITH EDIT SAVE -->
 <div id="tab-raffle" class="tab-content">
 <div class="card">
 <h2 style="font-size:14px;font-weight:bold;margin-bottom:12px"><i class="fa-solid fa-ticket" style="color:#d97706"></i> Issue Raffle Ticket</h2>
+<div id="editRaffleBanner" class="edit-mode-banner"><i class="fa-solid fa-pen-to-square"></i> EDIT MODE - Editing Ticket: <span id="editRaffleLabel"></span> - Update then Save Changes</div>
 <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px">
 <div><label>Participant Name *</label><input type="text" id="raffleName" placeholder="Enter full name" required></div>
 <div><label>Associated Purchase *</label><select id="raffleNote" required><option value="" disabled selected>-- Select Item --</option><option>Sorghum Mill</option><option>Stove</option><option>Briquette</option><option>Activated Charcoal</option><option>Bitter Leaf Soap</option><option>General Entry / Visitor</option></select></div>
 </div>
-<button class="btn btn-amber" style="width:100%;margin-top:12px" onclick="handleRaffleSubmit()"><i class="fa-solid fa-id-card"></i> Generate Ticket Number</button>
+<div style="display:flex;gap:8px;margin-top:12px">
+<button id="issueRaffleBtn" class="btn btn-amber" style="flex:1" onclick="handleRaffleSubmit()"><i class="fa-solid fa-id-card"></i> Generate Ticket Number</button>
+<button id="saveRaffleBtn" class="btn btn-blue" style="flex:1;display:none" onclick="saveEditedRaffle()"><i class="fa-solid fa-floppy-disk"></i> Save Changes - Update Cloud</button>
+<button id="cancelRaffleBtn" class="btn" style="flex:0.5;display:none;background:#64748b" onclick="cancelEditRaffle()"><i class="fa-solid fa-xmark"></i> Cancel</button>
+</div>
 </div>
 <div id="ticketResultCard" class="card" style="display:none;background:#065f46;color:white">
 <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px">
@@ -239,7 +252,7 @@ firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
 let currentUser=JSON.parse(localStorage.getItem('bnl_currentUser')||'null');
 let salesList=[],raffleList=[],usersList=[],auditList=[],currentTicketObject=null;
-let editingUserId=null;
+let editingUserId=null, editingSaleId=null, editingRaffleId=null;
 const PRODUCT_PRICES={"Sorghum Mill":150000,"Stove":25000,"Briquette":3500,"Activated Charcoal":5000,"Bitter Leaf Soap":1500};
 const MODULES=["Dashboard","Sales","Raffle","Users","Audit","Reports"];
 
@@ -288,6 +301,8 @@ async function logAudit(action,moduleName,details,oldVal="",newVal=""){
  const entry={timestamp:new Date().toISOString(),dateStr:new Date().toISOString().split('T')[0],timeStr:new Date().toLocaleTimeString(),dateOnly:new Date().toLocaleDateString(),user:currentUser.username,action:action,module:moduleName,batchId:"BNL-"+Date.now(),details:details,oldValue:oldVal,newValue:newVal,ip:"web-"+Math.floor(Math.random()*10000),createdAt:firebase.firestore.FieldValue.serverTimestamp()};
  try{await db.collection("auditTrail").add(entry);}catch(e){}
 }
+
+// SALES EDIT LOGIC
 function onProductChange(){const v=document.getElementById("saleProduct").value;const box=document.getElementById("customProductBox");if(v==="Other / Custom Product"){box.style.display="block"}else{box.style.display="none";if(PRODUCT_PRICES[v])document.getElementById("salePrice").value=PRODUCT_PRICES[v];}calculateTotal();}
 function calculateTotal(){const p=parseFloat(document.getElementById("salePrice").value)||0;const q=parseInt(document.getElementById("saleQty").value)||1;document.getElementById("saleTotal").value="₦"+(p*q).toLocaleString('en-US',{minimumFractionDigits:2});}
 async function handleSaleSubmit(){
@@ -296,7 +311,45 @@ async function handleSaleSubmit(){
  const price=parseFloat(document.getElementById("salePrice").value)||0;const qty=parseInt(document.getElementById("saleQty").value)||1;
  const sale={productName:prodName,unitPrice:price,qty:qty,totalAmount:price*qty,customerName:document.getElementById("saleCustomer").value||"Walk-in",repName:currentUser.fullName,timestamp:new Date().toISOString(),timeStr:new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'}),dateStr:new Date().toISOString().split('T')[0],createdBy:currentUser.username};
  await db.collection("sales").add(sale);logAudit("Added","Sales",`Sale ${prodName} x${qty} ₦${price*qty} by ${currentUser.username}`,"",JSON.stringify(sale));alert("✅ Saved to cloud");
- document.getElementById("saleCustomer").value="";calculateTotal();
+ resetSaleForm();
+}
+function editSale(id){
+ const s=salesList.find(x=>x.docId===id); if(!s) return;
+ editingSaleId=id;
+ document.getElementById("saleProduct").value=Object.keys(PRODUCT_PRICES).includes(s.productName)?s.productName:"Other / Custom Product";
+ if(!Object.keys(PRODUCT_PRICES).includes(s.productName)){document.getElementById("customProductBox").style.display="block";document.getElementById("customProductName").value=s.productName;}
+ document.getElementById("salePrice").value=s.unitPrice;
+ document.getElementById("saleQty").value=s.qty;
+ document.getElementById("saleCustomer").value=s.customerName;
+ calculateTotal();
+ document.getElementById("editSaleBanner").classList.add("active");
+ document.getElementById("editSaleLabel").innerText=s.productName+" - ₦"+s.totalAmount.toLocaleString();
+ document.getElementById("issueSaleBtn").style.display="none";
+ document.getElementById("saveSaleBtn").style.display="inline-flex";
+ document.getElementById("cancelSaleBtn").style.display="inline-flex";
+ switchTab('sales'); window.scrollTo({top:0,behavior:'smooth'});
+}
+async function saveEditedSale(){
+ if(!editingSaleId) return;
+ const prodSel=document.getElementById("saleProduct").value;
+ const prodName=prodSel==="Other / Custom Product"?document.getElementById("customProductName").value:prodSel;
+ const price=parseFloat(document.getElementById("salePrice").value)||0;
+ const qty=parseInt(document.getElementById("saleQty").value)||1;
+ const old=salesList.find(x=>x.docId===editingSaleId);
+ const updated={productName:prodName,unitPrice:price,qty:qty,totalAmount:price*qty,customerName:document.getElementById("saleCustomer").value||"Walk-in",updatedAt:new Date().toISOString(),updatedBy:currentUser.username};
+ await db.collection("sales").doc(editingSaleId).update(updated);
+ logAudit("Edited","Sales",`Edited sale ${old.productName}=>${prodName} ₦${old.totalAmount}=>₦${price*qty} by ${currentUser.username}`,JSON.stringify(old),JSON.stringify(updated));
+ alert("✅ Sale updated!");
+ resetSaleForm();
+}
+function cancelEditSale(){ resetSaleForm(); }
+function resetSaleForm(){
+ editingSaleId=null;
+ document.getElementById("saleProduct").value="";document.getElementById("customProductBox").style.display="none";document.getElementById("customProductName").value="";document.getElementById("salePrice").value="";document.getElementById("saleQty").value="1";document.getElementById("saleTotal").value="₦0.00";document.getElementById("saleCustomer").value="";
+ document.getElementById("editSaleBanner").classList.remove("active");
+ document.getElementById("issueSaleBtn").style.display="inline-flex";
+ document.getElementById("saveSaleBtn").style.display="none";
+ document.getElementById("cancelSaleBtn").style.display="none";
 }
 function refreshKPIs(){
  const total=salesList.reduce((s,i)=>s+(i.totalAmount||0),0);
@@ -312,23 +365,59 @@ function renderSales(){
  const q=(document.getElementById("salesSearchInput").value||"").toLowerCase();
  const body=document.getElementById("salesTableBody");
  const filtered=salesList.filter(s=>JSON.stringify(s).toLowerCase().includes(q));
- body.innerHTML=filtered.map(s=>`<tr><td>${s.timeStr||'-'}</td><td style="font-weight:bold">${s.productName}</td><td style="text-align:center">${s.qty}</td><td style="font-weight:900;color:#059669">₦${(s.totalAmount||0).toLocaleString()}</td><td>${s.customerName}</td><td>${s.repName}</td><td><button onclick="deleteSale('${s.docId}')" class="btn-danger">Delete</button></td></tr>`).join('')||"<tr><td colspan='7' style='text-align:center;color:#94a3b8'>No sales yet</td></tr>";
+ body.innerHTML=filtered.map(s=>`<tr><td>${s.timeStr||'-'}</td><td style="font-weight:bold">${s.productName}</td><td style="text-align:center">${s.qty}</td><td style="font-weight:900;color:#059669">₦${(s.totalAmount||0).toLocaleString()}</td><td>${s.customerName}</td><td>${s.repName}</td><td style="white-space:nowrap"><button class="btn-edit" onclick="editSale('${s.docId}')">Edit</button> <button onclick="deleteSale('${s.docId}')" class="btn-danger">Delete</button></td></tr>`).join('')||"<tr><td colspan='7' style='text-align:center;color:#94a3b8'>No sales yet</td></tr>";
 }
-async function deleteSale(id){if(!confirm("Delete this sale from cloud?"))return;const old=salesList.find(x=>x.docId===id);await db.collection("sales").doc(id).delete();logAudit("Deleted","Sales",`Deleted sale ${old.productName} ₦${old.totalAmount} by ${currentUser.username}`,JSON.stringify(old),"");}
+async function deleteSale(id){if(!confirm("Delete this sale from cloud?"))return;const old=salesList.find(x=>x.docId===id);await db.collection("sales").doc(id).delete();logAudit("Deleted","Sales",`Deleted sale ${old.productName} ₦${old.totalAmount} by ${currentUser.username}`,JSON.stringify(old),"");if(editingSaleId===id)resetSaleForm();}
+
+// RAFFLE EDIT LOGIC
 async function handleRaffleSubmit(){
  const name=document.getElementById("raffleName").value.trim();if(!name)return alert("Enter participant name");
  const nextNum=raffleList.length+1;const code="BNL-"+String(nextNum).padStart(4,'0');
  const raff={ticketNum:nextNum,ticketCode:code,participantName:name,itemNote:document.getElementById("raffleNote").value,repName:currentUser.fullName,timestamp:new Date().toISOString(),dateStr:new Date().toLocaleString(),createdBy:currentUser.username};
- await db.collection("raffles").add(raff);currentTicketObject=raff;document.getElementById("resTicketCode").innerText=code;document.getElementById("resParticipantName").innerText=name;document.getElementById("resDetails").innerText=`Item: ${raff.itemNote} | Rep: ${raff.repName}`;document.getElementById("ticketResultCard").style.display="block";logAudit("Added","Raffle",`Issued ticket ${code} to ${name} by ${currentUser.username}`,"",JSON.stringify(raff));document.getElementById("raffleName").value="";
+ await db.collection("raffles").add(raff);currentTicketObject=raff;document.getElementById("resTicketCode").innerText=code;document.getElementById("resParticipantName").innerText=name;document.getElementById("resDetails").innerText=`Item: ${raff.itemNote} | Rep: ${raff.repName}`;document.getElementById("ticketResultCard").style.display="block";logAudit("Added","Raffle",`Issued ticket ${code} to ${name} by ${currentUser.username}`,"",JSON.stringify(raff));resetRaffleForm();
+}
+function editRaffle(id){
+ const r=raffleList.find(x=>x.docId===id); if(!r) return;
+ editingRaffleId=id;
+ document.getElementById("raffleName").value=r.participantName;
+ document.getElementById("raffleNote").value=r.itemNote;
+ document.getElementById("editRaffleBanner").classList.add("active");
+ document.getElementById("editRaffleLabel").innerText=r.ticketCode+" - "+r.participantName;
+ document.getElementById("issueRaffleBtn").style.display="none";
+ document.getElementById("saveRaffleBtn").style.display="inline-flex";
+ document.getElementById("cancelRaffleBtn").style.display="inline-flex";
+ switchTab('raffle'); window.scrollTo({top:0,behavior:'smooth'});
+}
+async function saveEditedRaffle(){
+ if(!editingRaffleId) return;
+ const name=document.getElementById("raffleName").value.trim();
+ const item=document.getElementById("raffleNote").value;
+ if(!name) return alert("Enter name");
+ const old=raffleList.find(x=>x.docId===editingRaffleId);
+ const updated={participantName:name,itemNote:item,updatedAt:new Date().toISOString(),updatedBy:currentUser.username};
+ await db.collection("raffles").doc(editingRaffleId).update(updated);
+ logAudit("Edited","Raffle",`Edited ticket ${old.ticketCode} ${old.participantName}=>${name} by ${currentUser.username}`,JSON.stringify(old),JSON.stringify(updated));
+ alert("✅ Raffle updated!");
+ resetRaffleForm();
+}
+function cancelEditRaffle(){ resetRaffleForm(); }
+function resetRaffleForm(){
+ editingRaffleId=null;
+ document.getElementById("raffleName").value="";document.getElementById("raffleNote").value="";
+ document.getElementById("editRaffleBanner").classList.remove("active");
+ document.getElementById("issueRaffleBtn").style.display="inline-flex";
+ document.getElementById("saveRaffleBtn").style.display="none";
+ document.getElementById("cancelRaffleBtn").style.display="none";
 }
 function renderRaffle(){
  const q=(document.getElementById("raffleSearchInput").value||"").toLowerCase();
  const body=document.getElementById("raffleTableBody");
  const filtered=raffleList.filter(r=>JSON.stringify(r).toLowerCase().includes(q));
- body.innerHTML=filtered.map(r=>`<tr><td style="font-weight:900;color:#d97706">${r.ticketCode}</td><td style="font-weight:bold">${r.participantName}</td><td>${r.itemNote}</td><td>${r.repName}</td><td style="font-size:10px;color:#64748b">${r.dateStr||'-'}</td><td><button onclick="deleteRaffle('${r.docId}')" class="btn-danger">Delete</button></td></tr>`).join('')||"<tr><td colspan='6' style='text-align:center;color:#94a3b8'>No raffles</td></tr>";
+ body.innerHTML=filtered.map(r=>`<tr><td style="font-weight:900;color:#d97706">${r.ticketCode}</td><td style="font-weight:bold">${r.participantName}</td><td>${r.itemNote}</td><td>${r.repName}</td><td style="font-size:10px;color:#64748b">${r.dateStr||'-'}</td><td style="white-space:nowrap"><button class="btn-edit" onclick="editRaffle('${r.docId}')">Edit</button> <button onclick="deleteRaffle('${r.docId}')" class="btn-danger">Delete</button></td></tr>`).join('')||"<tr><td colspan='6' style='text-align:center;color:#94a3b8'>No raffles</td></tr>";
 }
-async function deleteRaffle(id){if(!confirm("Delete ticket?"))return;const old=raffleList.find(x=>x.docId===id);await db.collection("raffles").doc(id).delete();logAudit("Deleted","Raffle",`Deleted ticket ${old.ticketCode}`,JSON.stringify(old),"");}
+async function deleteRaffle(id){if(!confirm("Delete ticket?"))return;const old=raffleList.find(x=>x.docId===id);await db.collection("raffles").doc(id).delete();logAudit("Deleted","Raffle",`Deleted ticket ${old.ticketCode}`,JSON.stringify(old),"");if(editingRaffleId===id)resetRaffleForm();}
 function printCurrentTicket(){if(!currentTicketObject)return;document.getElementById("printTicketCode").innerText=currentTicketObject.ticketCode;document.getElementById("printName").innerText=currentTicketObject.participantName;document.getElementById("printItem").innerText=currentTicketObject.itemNote;document.getElementById("printRep").innerText=currentTicketObject.repName;document.getElementById("printDate").innerText=currentTicketObject.dateStr;window.print();}
+
 function buildAccessGrid(){const grid=document.getElementById("accessGrid");grid.innerHTML=MODULES.map(m=>`<div class="access-item"><input type="checkbox" id="acc_${m}" value="${m}"><label style="margin:0" for="acc_${m}">${m}</label><select id="perm_${m}" style="margin-left:auto;width:90px;padding:4px"><option>Add/Edit</option><option>View Only</option></select></div>`).join('');}
 function setAccessAll(){MODULES.forEach(m=>{document.getElementById("acc_"+m).checked=true;document.getElementById("perm_"+m).value="Add/Edit";});}
 function clearAccess(){MODULES.forEach(m=>document.getElementById("acc_"+m).checked=false);}
