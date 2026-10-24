@@ -326,7 +326,11 @@ function canEdit(mod){
  if(!val) return false;
  return String(val).toLowerCase().includes("add");
 }
-
+function isOwnerOrAdmin(entry){
+ if(!currentUser || !entry) return false;
+ if(currentUser.role==="Admin" || currentUser.username==="admin") return true;
+ return entry.createdBy === currentUser.username;
+}
 function syncCurrentUser(){
  if(!currentUser || usersList.length===0) return false;
  const fresh = usersList.find(u=>u.username===currentUser.username);
@@ -485,7 +489,9 @@ async function handleSaleSubmit(){
 }
 function editSale(id){
  if(!canEdit("Sales")) return alert("View Only");
- const s=salesList.find(x=>x.docId===id); if(!s) return; editingSaleId=id;
+ const s=salesList.find(x=>x.docId===id); if(!s) return;
+ if(!isOwnerOrAdmin(s)) return alert(`🚫 You can only edit your own sales. This sale was created by ${s.createdBy}.`);
+ editingSaleId=id;
  const knownOptions = Object.keys(PRODUCT_PRICES);
  document.getElementById("saleProduct").value=knownOptions.includes(s.productName)?s.productName:"Other / Custom Product";
  if(!knownOptions.includes(s.productName)){document.getElementById("customProductBox").style.display="block";document.getElementById("customProductName").value=s.productName;}
@@ -495,8 +501,11 @@ function editSale(id){
 }
 async function saveEditedSale(){
  if(!canEdit("Sales")) return alert("View Only");
- if(!editingSaleId) return;const prodSel=document.getElementById("saleProduct").value;const prodName=prodSel==="Other / Custom Product"?document.getElementById("customProductName").value:prodSel;
- const price=parseFloat(document.getElementById("salePrice").value)||0;const qty=parseInt(document.getElementById("saleQty").value)||1;const old=salesList.find(x=>x.docId===editingSaleId);
+ if(!editingSaleId) return;
+ const old=salesList.find(x=>x.docId===editingSaleId);
+ if(!isOwnerOrAdmin(old)) return alert(`🚫 You can only edit your own sales. This was created by ${old.createdBy}.`);
+ const prodSel=document.getElementById("saleProduct").value;const prodName=prodSel==="Other / Custom Product"?document.getElementById("customProductName").value:prodSel;
+ const price=parseFloat(document.getElementById("salePrice").value)||0;const qty=parseInt(document.getElementById("saleQty").value)||1;
  const updated={productName:prodName,unitPrice:price,qty:qty,totalAmount:price*qty,customerName:document.getElementById("saleCustomer").value||"Walk-in",updatedAt:new Date().toISOString(),updatedBy:currentUser.username};
  await db.collection("sales").doc(editingSaleId).update(updated);logAudit("Edited","Sales",`Edited sale ${old.productName}=>${prodName} ₦${old.totalAmount}=>₦${price*qty}`,JSON.stringify(old),JSON.stringify(updated));alert("✅ Sale updated!");resetSaleForm();
 }
@@ -538,12 +547,19 @@ function refreshKPIs(){
 }
 function renderSales(){
  const body=document.getElementById("salesTableBody");
- const can=canEdit("Sales");
- body.innerHTML=salesList.map(s=>`<tr><td>${s.timeStr||'-'}</td><td style="font-weight:bold">${s.productName}</td><td style="text-align:center">${s.qty}</td><td style="font-weight:900;color:#059669">₦${(s.totalAmount||0).toLocaleString()}</td><td>${s.customerName}</td><td>${s.repName}</td><td style="white-space:nowrap">${can?`<button class="btn-edit" onclick="editSale('${s.docId}')">Edit</button> <button onclick="deleteSale('${s.docId}')" class="btn-danger">Delete</button>`:`<span style="color:#94a3b8;font-size:10px">View Only</span>`}</td></tr>`).join('')||"<tr><td colspan='7' style='text-align:center;color:#94a3b8'>No sales yet</td></tr>";
+ const canModule=canEdit("Sales");
+ const isAdmin = currentUser && (currentUser.role==="Admin" || currentUser.username==="admin");
+ body.innerHTML=salesList.map(s=>{
+   const canOwn = isAdmin || s.createdBy===currentUser.username;
+   const showActions = canModule && canOwn;
+   return `<tr><td>${s.timeStr||'-'}</td><td style="font-weight:bold">${s.productName}</td><td style="text-align:center">${s.qty}</td><td style="font-weight:900;color:#059669">₦${(s.totalAmount||0).toLocaleString()}</td><td>${s.customerName}</td><td>${s.repName}</td><td style="white-space:nowrap">${showActions?`<button class="btn-edit" onclick="editSale('${s.docId}')">Edit</button> <button onclick="deleteSale('${s.docId}')" class="btn-danger">Delete</button>`: (canModule?`<span style="color:#f59e0b;font-size:9px" title="Created by ${s.createdBy}">🔒 ${s.createdBy}</span>`:`<span style="color:#94a3b8;font-size:10px">View Only</span>`)}</td></tr>`
+ }).join('')||"<tr><td colspan='7' style='text-align:center;color:#94a3b8'>No sales yet</td></tr>";
 }
 async function deleteSale(id){
  if(!canEdit("Sales")) return alert("View Only");
- if(!confirm("Delete this sale?"))return;const old=salesList.find(x=>x.docId===id);await db.collection("sales").doc(id).delete();logAudit("Deleted","Sales",`Deleted sale ${old.productName} ₦${old.totalAmount}`,JSON.stringify(old),"");if(editingSaleId===id)resetSaleForm();}
+ const old=salesList.find(x=>x.docId===id);
+ if(!isOwnerOrAdmin(old)) return alert(`🚫 You can only delete your own sales. This was created by ${old.createdBy}.`);
+ if(!confirm("Delete this sale?"))return;await db.collection("sales").doc(id).delete();logAudit("Deleted","Sales",`Deleted sale ${old.productName} ₦${old.totalAmount}`,JSON.stringify(old),"");if(editingSaleId===id)resetSaleForm();}
 
 async function handleRaffleSubmit(){
  if(!canEdit("Raffle")) return alert("View Only");
@@ -554,13 +570,18 @@ async function handleRaffleSubmit(){
 }
 function editRaffle(id){
  if(!canEdit("Raffle")) return alert("View Only");
- const r=raffleList.find(x=>x.docId===id); if(!r) return;editingRaffleId=id;document.getElementById("raffleName").value=r.participantName;
+ const r=raffleList.find(x=>x.docId===id); if(!r) return;
+ if(!isOwnerOrAdmin(r)) return alert(`🚫 You can only edit your own tickets. This was created by ${r.createdBy}.`);
+ editingRaffleId=id;document.getElementById("raffleName").value=r.participantName;
  document.getElementById("editRaffleBanner").classList.add("active");document.getElementById("editRaffleLabel").innerText=r.ticketCode+" - "+r.participantName;
  document.getElementById("issueRaffleBtn").style.display="none";document.getElementById("saveRaffleBtn").style.display="inline-flex";document.getElementById("cancelRaffleBtn").style.display="inline-flex";switchTab('raffle');
 }
 async function saveEditedRaffle(){
  if(!canEdit("Raffle")) return alert("View Only");
- if(!editingRaffleId) return;const name=document.getElementById("raffleName").value.trim();if(!name) return alert("Enter name");const old=raffleList.find(x=>x.docId===editingRaffleId);
+ if(!editingRaffleId) return;
+ const old=raffleList.find(x=>x.docId===editingRaffleId);
+ if(!isOwnerOrAdmin(old)) return alert(`🚫 You can only edit your own tickets. Created by ${old.createdBy}.`);
+ const name=document.getElementById("raffleName").value.trim();if(!name) return alert("Enter name");
  const updated={participantName:name,itemNote:"Sorghum meal 1kg",amount:RAFFLE_PRICE,updatedAt:new Date().toISOString(),updatedBy:currentUser.username};
  await db.collection("raffles").doc(editingRaffleId).update(updated);logAudit("Edited","Raffle",`Edited ticket ${old.ticketCode} ${old.participantName}=>${name}`,JSON.stringify(old),JSON.stringify(updated));alert("✅ Raffle updated!");resetRaffleForm();
 }
@@ -568,12 +589,19 @@ function cancelEditRaffle(){ resetRaffleForm(); }
 function resetRaffleForm(){editingRaffleId=null;document.getElementById("raffleName").value="";document.getElementById("editRaffleBanner").classList.remove("active");document.getElementById("issueRaffleBtn").style.display="inline-flex";document.getElementById("saveRaffleBtn").style.display="none";document.getElementById("cancelRaffleBtn").style.display="none";applyAccessControl();}
 function renderRaffle(){
  const body=document.getElementById("raffleTableBody");
- const can=canEdit("Raffle");
- body.innerHTML=raffleList.map(r=>`<tr><td style="font-weight:900;color:#d97706">${r.ticketCode}</td><td style="font-weight:bold">${r.participantName}</td><td>Sorghum meal 1kg</td><td style="font-weight:900;color:#059669">₦${(r.amount||RAFFLE_PRICE).toLocaleString()}</td><td>${r.repName}</td><td style="font-size:10px;color:#64748b">${r.dateStr||'-'}</td><td style="white-space:nowrap">${can?`<button class="btn-edit" onclick="editRaffle('${r.docId}')">Edit</button> <button onclick="deleteRaffle('${r.docId}')" class="btn-danger">Delete</button>`:`<span style="color:#94a3b8;font-size:10px">View Only</span>`}</td></tr>`).join('')||"<tr><td colspan='7' style='text-align:center;color:#94a3b8'>No raffles</td></tr>";
+ const canModule=canEdit("Raffle");
+ const isAdmin = currentUser && (currentUser.role==="Admin" || currentUser.username==="admin");
+ body.innerHTML=raffleList.map(r=>{
+   const canOwn = isAdmin || r.createdBy===currentUser.username;
+   const showActions = canModule && canOwn;
+   return `<tr><td style="font-weight:900;color:#d97706">${r.ticketCode}</td><td style="font-weight:bold">${r.participantName}</td><td>Sorghum meal 1kg</td><td style="font-weight:900;color:#059669">₦${(r.amount||RAFFLE_PRICE).toLocaleString()}</td><td>${r.repName}</td><td style="font-size:10px;color:#64748b">${r.dateStr||'-'}</td><td style="white-space:nowrap">${showActions?`<button class="btn-edit" onclick="editRaffle('${r.docId}')">Edit</button> <button onclick="deleteRaffle('${r.docId}')" class="btn-danger">Delete</button>`: (canModule?`<span style="color:#f59e0b;font-size:9px">🔒 ${r.createdBy}</span>`:`<span style="color:#94a3b8;font-size:10px">View Only</span>`)}</td></tr>`
+ }).join('')||"<tr><td colspan='7' style='text-align:center;color:#94a3b8'>No raffles</td></tr>";
 }
 async function deleteRaffle(id){
  if(!canEdit("Raffle")) return alert("View Only");
- if(!confirm("Delete ticket?"))return;const old=raffleList.find(x=>x.docId===id);await db.collection("raffles").doc(id).delete();logAudit("Deleted","Raffle",`Deleted ticket ${old.ticketCode}`,JSON.stringify(old),"");if(editingRaffleId===id)resetRaffleForm();}
+ const old=raffleList.find(x=>x.docId===id);
+ if(!isOwnerOrAdmin(old)) return alert(`🚫 You can only delete your own tickets. Created by ${old.createdBy}.`);
+ if(!confirm("Delete ticket?"))return;await db.collection("raffles").doc(id).delete();logAudit("Deleted","Raffle",`Deleted ticket ${old.ticketCode}`,JSON.stringify(old),"");if(editingRaffleId===id)resetRaffleForm();}
 function printCurrentTicket(){if(!currentTicketObject)return;document.getElementById("printTicketCode").innerText=currentTicketObject.ticketCode;document.getElementById("printName").innerText=currentTicketObject.participantName;document.getElementById("printItem").innerText="Sorghum meal 1kg";document.getElementById("printAmount").innerText="1,200";document.getElementById("printRep").innerText=currentTicketObject.repName;document.getElementById("printDate").innerText=currentTicketObject.dateStr;document.getElementById("printableTicketArea").style.display="block";document.getElementById("printableReport").style.display="none";window.print();setTimeout(()=>{document.getElementById("printableTicketArea").style.display="none";},500);}
 
 function buildAccessGrid(){const grid=document.getElementById("accessGrid");grid.innerHTML=MODULES.map(m=>`<div class="access-item"><input type="checkbox" id="acc_${m}" value="${m}"><label style="margin:0" for="acc_${m}">${m}</label><select id="perm_${m}" style="margin-left:auto;width:90px;padding:4px"><option>Add/Edit</option><option>View Only</option></select></div>`).join('');}
