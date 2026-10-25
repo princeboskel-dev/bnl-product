@@ -194,7 +194,7 @@ td{padding:10px;border-bottom:1px solid #f1f5f9;color:#334155;font-weight:500}
 <button id="cancelEditBtn" class="btn" style="flex:0.5;display:none;background:#64748b" onclick="cancelEditUser()"><i class="fa-solid fa-xmark"></i> Cancel</button>
 </div>
 </div>
-<div class="card"><div class="table-container"><table><thead><tr><th>User ID</th><th>Full Name</th><th>Username</th><th>Password</th><th>Role</th><th>Access</th><th>Status</th><th>Action</th></tr></thead><tbody id="usersTableBody"></tbody></table></div></div>
+<div class="card"><div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px"><h3 style="font-size:13px;font-weight:bold">Users List</h3><button class="btn btn-red btn-sm" onclick="cleanDuplicateAdmins()">Clean Duplicate Admins - Keep 1</button></div><div class="table-container"><table><thead><tr><th>User ID</th><th>Full Name</th><th>Username</th><th>Password</th><th>Role</th><th>Access</th><th>Status</th><th>Action</th></tr></thead><tbody id="usersTableBody"></tbody></table></div></div>
 </div>
 </div>
 
@@ -307,6 +307,7 @@ const db=firebase.firestore();
 let currentUser=JSON.parse(localStorage.getItem('bnl_currentUser')||'null');
 let salesList=[],raffleList=[],usersList=[],auditList=[],currentTicketObject=null;
 let editingUserId=null, editingSaleId=null, editingRaffleId=null;
+let isSeedingAdmin=false;
 const PRODUCT_PRICES={
 "Sorghum meal 1kg":1200,
 "Sorghum meal 2kg":2000,
@@ -424,13 +425,31 @@ function init(){
    updateUserFilter();
    updateReportUserFilter();
    if(changed) applyAccessControl();
-   if(usersList.length===0)seedAdmin();
+   if(usersList.length===0 && !isSeedingAdmin) seedAdmin();
  });
  db.collection("auditTrail").orderBy("timestamp","desc").limit(300).onSnapshot(s=>{auditList=s.docs.map(d=>({docId:d.id,...d.data()}));renderAudit();renderReportPreviews();});
  if(currentUser)showApp();
 }
 init();
-function seedAdmin(){db.collection("users").add({userId:"USER-2025-ADMIN-001",fullName:"System Administrator",username:"admin",password:"admin",role:"Admin",status:"Active",access:{Dashboard:"Add/Edit",Sales:"Add/Edit",Raffle:"Add/Edit",Reports:"Add/Edit",Users:"Add/Edit",Audit:"Add/Edit"},notes:"Default admin",createdAt:new Date().toISOString()});}
+async function seedAdmin(){
+ if(isSeedingAdmin) return;
+ const exists = usersList.some(u=>u.username==="admin");
+ if(exists) return;
+ isSeedingAdmin=true;
+ try{ await db.collection("users").add({userId:"USER-2025-ADMIN-001",fullName:"System Administrator",username:"admin",password:"admin",role:"Admin",status:"Active",access:{Dashboard:"Add/Edit",Sales:"Add/Edit",Raffle:"Add/Edit",Reports:"Add/Edit",Users:"Add/Edit",Audit:"Add/Edit"},notes:"Default admin",createdAt:new Date().toISOString()}); }catch(e){}
+ setTimeout(()=>{isSeedingAdmin=false;},2000);
+}
+async function cleanDuplicateAdmins(){
+ const admins = usersList.filter(u=>u.username==="admin");
+ if(admins.length<=1){ alert("✅ No duplicates - only 1 admin exists"); return; }
+ if(!confirm(`Found ${admins.length} admin accounts. Delete ${admins.length-1} duplicates and keep 1?`)) return;
+ const toDelete = admins.slice(1);
+ const batch=db.batch();
+ toDelete.forEach(a=>batch.delete(db.collection("users").doc(a.docId)));
+ await batch.commit();
+ alert(`✅ Deleted ${toDelete.length} duplicate admins. 1 admin left.`);
+ logAudit("Deleted","Users",`Cleaned ${toDelete.length} duplicate admin accounts`);
+}
 function handleLogin(){
  const u=document.getElementById("loginUser").value.trim(); const p=document.getElementById("loginPass").value.trim(); const err=document.getElementById("loginError");
  if(!u||!p){err.style.display="block";err.innerText="Enter username and password";return;}
@@ -624,6 +643,7 @@ async function issueUser(){
  const full=document.getElementById("uFullName").value.trim();const user=document.getElementById("uUsername").value.trim();const pass=document.getElementById("uPassword").value.trim();const role=document.getElementById("uRole").value;const status=document.getElementById("uStatus").value;const access=getAccessObj();
  if(!full||!user||!pass||!role){ alert("Fill Full Name, Username, Password, Role"); return; }
  if(Object.keys(access).length===0){ alert("⚠️ Select at least ONE module access!"); return; }
+ if(usersList.some(u=>u.username===user)){ alert(`⚠️ Username ${user} already exists - use a different username`); return; }
  const uid="USER-"+new Date().toISOString().slice(0,10).replace(/-/g,'')+"-"+String(usersList.length+1).padStart(3,'0');
  const data={userId:uid,fullName:full,username:user,password:pass,role:role,status:status,access:access,notes:document.getElementById("uNotes").value,createdAt:new Date().toISOString(),createdBy:currentUser.username};
  try{
@@ -707,7 +727,10 @@ async function delUser(id){
  if(!confirm("Delete this user?"))return;
  const old=usersList.find(x=>x.docId===id);
  if(!old){ alert("User not found"); return; }
- if(old.username==="admin"){ alert("Cannot delete main admin"); return; }
+ if(old.username==="admin"){
+   const adminCount = usersList.filter(u=>u.username==="admin").length;
+   if(adminCount<=1){ alert("Cannot delete last main admin - keep 1 admin"); return; }
+ }
  try{
    await db.collection("users").doc(id).delete();
    await logAudit("Deleted","Users",`Deleted user ${old.username}`,JSON.stringify(old),"");
