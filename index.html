@@ -227,6 +227,7 @@ td{padding:10px;border-bottom:1px solid #f1f5f9;color:#334155;font-weight:500}
 <div class="smart-banner">
 <h2><i class="fa-solid fa-chart-bar"></i> Reports Module</h2>
 </div>
+<div id="reportsViewOnlyBanner" style="display:none;background:#fef3c7;border:1px solid #fbbf24;color:#92400e;padding:8px 12px;border-radius:8px;font-size:11px;font-weight:bold;margin-bottom:12px;text-align:center">👁️ View Only - You can view & filter reports, but Print / Export is disabled</div>
 
 <div class="card" style="background:#f8fafc;border:1px dashed #cbd5e1">
 <h3 style="font-size:12px;font-weight:bold;margin-bottom:8px">Filter Reports</h3>
@@ -239,23 +240,23 @@ td{padding:10px;border-bottom:1px solid #f1f5f9;color:#334155;font-weight:500}
 </div>
 
 <div class="grid-3">
-<div class="kpi-card report-card summary"><div class="kpi-title">Total Revenue (Sales + Raffle)</div><div class="kpi-value" id="report-revenue">₦0</div><div class="kpi-sub" id="report-tx">0 transactions</div><div class="kpi-sub" id="report-breakdown" style="color:#7c3aed;font-weight:bold"></div><button class="btn btn-purple btn-sm" style="margin-top:8px;width:100%" onclick="printHomeReport()"><i class="fa-solid fa-print"></i> Print Summary</button></div>
-<div class="kpi-card report-card"><div class="kpi-title">Sales Board Total</div><div class="kpi-value" id="report-items" style="color:#059669">₦0</div><div class="kpi-sub" id="report-items-sub">Across product lines</div><button class="btn btn-sm" style="margin-top:8px;width:100%" onclick="printSalesReport()"><i class="fa-solid fa-print"></i> Print Sales Detail</button></div>
-<div class="kpi-card report-card raffle"><div class="kpi-title">Raffle Board Total</div><div class="kpi-value" id="report-raffle" style="color:#d97706">₦0</div><div class="kpi-sub" id="report-latest">Latest: None</div><button class="btn btn-amber btn-sm" style="margin-top:8px;width:100%" onclick="printRaffleReport()"><i class="fa-solid fa-print"></i> Print Raffle Detail</button></div>
+<div class="kpi-card report-card summary"><div class="kpi-title">Total Revenue (Sales + Raffle)</div><div class="kpi-value" id="report-revenue">₦0</div><div class="kpi-sub" id="report-tx">0 transactions</div><div class="kpi-sub" id="report-breakdown" style="color:#7c3aed;font-weight:bold"></div><button class="btn btn-purple btn-sm report-action-btn" style="margin-top:8px;width:100%" onclick="printHomeReport()"><i class="fa-solid fa-print"></i> Print Summary</button></div>
+<div class="kpi-card report-card"><div class="kpi-title">Sales Board Total</div><div class="kpi-value" id="report-items" style="color:#059669">₦0</div><div class="kpi-sub" id="report-items-sub">Across product lines</div><button class="btn btn-sm report-action-btn" style="margin-top:8px;width:100%" onclick="printSalesReport()"><i class="fa-solid fa-print"></i> Print Sales Detail</button></div>
+<div class="kpi-card report-card raffle"><div class="kpi-title">Raffle Board Total</div><div class="kpi-value" id="report-raffle" style="color:#d97706">₦0</div><div class="kpi-sub" id="report-latest">Latest: None</div><button class="btn btn-amber btn-sm report-action-btn" style="margin-top:8px;width:100%" onclick="printRaffleReport()"><i class="fa-solid fa-print"></i> Print Raffle Detail</button></div>
 </div>
 <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px">
 <div class="card report-card summary">
 <h3 style="font-size:13px;font-weight:bold;margin-bottom:10px"><i class="fa-solid fa-file-invoice" style="color:#7c3aed"></i> Summary Report</h3>
 <div id="report-summary-breakdown"></div>
-<button class="btn btn-purple" style="width:100%;margin-top:12px" onclick="printHomeReport()"><i class="fa-solid fa-print"></i> Print Summary Detail Report</button>
+<button class="btn btn-purple report-action-btn" style="width:100%;margin-top:12px" onclick="printHomeReport()"><i class="fa-solid fa-print"></i> Print Summary Detail Report</button>
 </div>
 <div class="card report-card">
 <h3 style="font-size:13px;font-weight:bold;margin-bottom:10px"><i class="fa-solid fa-cart-shopping" style="color:#059669"></i> Sales Detail Report</h3>
 <p style="font-size:11px;color:#64748b;margin-bottom:10px">All sales transactions - 11 products</p>
 <div style="max-height:200px;overflow-y:auto;font-size:10px" id="report-sales-preview"></div>
 <div style="display:flex;gap:6px;margin-top:10px">
-<button class="btn" style="flex:1" onclick="printSalesReport()"><i class="fa-solid fa-print"></i> Print Sales Detail</button>
-<button class="btn btn-dark btn-sm" style="flex:1" onclick="exportSalesCSV()"><i class="fa-solid fa-download"></i> Export CSV</button>
+<button class="btn report-action-btn" style="flex:1" onclick="printSalesReport()"><i class="fa-solid fa-print"></i> Print Sales Detail</button>
+<button class="btn btn-dark btn-sm report-action-btn" style="flex:1" onclick="exportSalesCSV()"><i class="fa-solid fa-download"></i> Export CSV</button>
 </div>
 </div>
 <div class="card report-card raffle">
@@ -263,8 +264,8 @@ td{padding:10px;border-bottom:1px solid #f1f5f9;color:#334155;font-weight:500}
 <p style="font-size:11px;color:#64748b;margin-bottom:10px">Sorghum meal 1kg = ₦1200 Only</p>
 <div style="max-height:200px;overflow-y:auto;font-size:10px" id="report-raffle-preview"></div>
 <div style="display:flex;gap:6px;margin-top:10px">
-<button class="btn btn-amber" style="flex:1" onclick="printRaffleReport()"><i class="fa-solid fa-print"></i> Print Raffle Detail</button>
-<button class="btn btn-dark btn-sm" style="flex:1" onclick="exportRaffleCSV()"><i class="fa-solid fa-download"></i> Export CSV</button>
+<button class="btn btn-amber report-action-btn" style="flex:1" onclick="printRaffleReport()"><i class="fa-solid fa-print"></i> Print Raffle Detail</button>
+<button class="btn btn-dark btn-sm report-action-btn" style="flex:1" onclick="exportRaffleCSV()"><i class="fa-solid fa-download"></i> Export CSV</button>
 </div>
 </div>
 </div>
@@ -356,7 +357,23 @@ function syncCurrentUser(){
  }
  return false;
 }
-
+function applyReportViewOnly(){
+ const can = canEdit("Reports");
+ const banner=document.getElementById("reportsViewOnlyBanner");
+ if(banner) banner.style.display = can ? "none" : "block";
+ document.querySelectorAll(".report-action-btn").forEach(btn=>{
+   if(!can){
+     btn.disabled=true;
+     btn.style.opacity="0.6";
+     if(!btn.dataset.origText) btn.dataset.origText=btn.innerHTML;
+     btn.innerHTML="👁️ View Only - No Print/Export";
+   } else {
+     btn.disabled=false;
+     btn.style.opacity="1";
+     if(btn.dataset.origText) btn.innerHTML=btn.dataset.origText;
+   }
+ });
+}
 function applyAccessControl(){
  if(!currentUser) return;
  const isAdmin=currentUser.role==="Admin" || currentUser.username==="admin";
@@ -374,6 +391,7 @@ function applyAccessControl(){
  checkTabAccess("Users","usersContent","usersAccessDenied");
  checkTabAccess("Audit","auditContent","auditAccessDenied");
  checkTabAccess("Reports","reportsContent","reportsAccessDenied");
+ applyReportViewOnly();
 
  const salesBtn = document.getElementById("issueSaleBtn");
  if(salesBtn){
@@ -826,9 +844,11 @@ async function deleteAuditRecord(id){
 }
 function exportAuditCSV(){const csv=["timestamp,date,user,action,module,details"].concat(auditList.map(a=>`"${a.timestamp}","${a.dateStr}","${a.user}","${a.action}","${a.module}","${(a.details||"").replace(/"/g,'""')}"`)).join("\n");downloadFile(csv,"bnl_audit_trail.csv");}
 function exportSalesCSV(){
+ if(!canEdit("Reports")) return alert("🚫 View Only - You cannot export Reports");
  const list = filteredSalesForReport.length?filteredSalesForReport:salesList;
  const csv=["time,product,qty,unitPrice,total,customer,rep,createdBy"].concat(list.map(s=>`"${s.timeStr||''}","${s.productName}",${s.qty},${s.unitPrice},${s.totalAmount},"${s.customerName}","${s.repName}","${s.createdBy||''}"`)).join("\n");downloadFile(csv,"bnl_sales_detail.csv");}
 function exportRaffleCSV(){
+ if(!canEdit("Reports")) return alert("🚫 View Only - You cannot export Reports");
  const list = filteredRaffleForReport.length?filteredRaffleForReport:raffleList;
  const csv=["ticketCode,participant,item,amount,rep,date,createdBy"].concat(list.map(r=>`"${r.ticketCode}","${r.participantName}","${r.itemNote}",${r.amount},"${r.repName}","${r.dateStr||''}","${r.createdBy||''}"`)).join("\n");downloadFile(csv,"bnl_raffle_detail.csv");}
 async function clearAuditTrail(){
@@ -841,6 +861,7 @@ function renderReportPreviews(){
 }
 
 function printSalesReport(){
+ if(!canEdit("Reports")) return alert("🚫 View Only - You cannot print Reports");
  const userF=document.getElementById("reportUserFilter")?.value||"";
  const typeF=document.getElementById("reportTypeFilter")?.value||"all";
  const list = (userF?filteredSalesForReport:salesList);
@@ -850,6 +871,7 @@ function printSalesReport(){
  document.getElementById("printableReport").innerHTML=html;document.getElementById("printableReport").style.display="block";document.getElementById("printableTicketArea").style.display="none";window.print();setTimeout(()=>document.getElementById("printableReport").style.display="none",500);logAudit("Viewed","Reports",`Printed Sales Detail Report ${userF?`user ${userF}`:''}`);
 }
 function printRaffleReport(){
+ if(!canEdit("Reports")) return alert("🚫 View Only - You cannot print Reports");
  const userF=document.getElementById("reportUserFilter")?.value||"";
  const typeF=document.getElementById("reportTypeFilter")?.value||"all";
  const list = (userF?filteredRaffleForReport:raffleList);
@@ -862,6 +884,7 @@ function printAuditReport(){
  document.getElementById("printableReport").innerHTML=html;document.getElementById("printableReport").style.display="block";document.getElementById("printableTicketArea").style.display="none";window.print();setTimeout(()=>document.getElementById("printableReport").style.display="none",500);logAudit("Viewed","Audit","Printed Audit Detail Report");
 }
 function printHomeReport(){
+ if(!canEdit("Reports")) return alert("🚫 View Only - You cannot print Reports");
  const userF=document.getElementById("reportUserFilter")?.value||"";
  const typeF=document.getElementById("reportTypeFilter")?.value||"all";
  const sList = (userF||typeF!=="all"?filteredSalesForReport:salesList);
